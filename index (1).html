@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Denizw AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#060608;
+  --s1:#0d0d12;
+  --s2:#13131c;
+  --border:#1e1e2e;
+  --border2:#2a2a3f;
+  --c1:#e879f9;
+  --c2:#38bdf8;
+  --c3:#4ade80;
+  --text:#f0f0ff;
+  --muted:#52527a;
+  --muted2:#3a3a5c;
+  --danger:#f87171;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Outfit',sans-serif;
+}
+
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(232,121,249,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(232,121,249,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%,rgba(232,121,249,0.08) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 90%,rgba(56,189,248,0.07) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
+}
+
+/* ═══════════════ AUTH SCREEN ═══════════════ */
+#authScreen{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+
+.auth-card{
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:36px 32px;
+  width:100%;max-width:400px;
+  display:flex;flex-direction:column;gap:24px;
+  animation:fadeUp 0.4s ease;
+  position:relative;z-index:1;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.auth-logo{
+  display:flex;align-items:center;gap:12px;
+}
+
+.auth-logo .ring{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;
+  flex-shrink:0;
+}
+
+.auth-logo h1{
+  font-size:1.7rem;font-weight:800;letter-spacing:-0.03em;
+  background:linear-gradient(90deg,var(--c1),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.auth-logo p{
+  font-size:0.72rem;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+}
+
+.auth-tabs{
+  display:flex;gap:4px;
+  background:var(--bg);
+  border-radius:10px;padding:4px;
+}
+
+.auth-tab{
+  flex:1;padding:9px;border:none;border-radius:7px;
+  font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  background:transparent;color:var(--muted);
+}
+
+.auth-tab.active{
+  background:var(--s2);color:var(--text);
+  box-shadow:0 1px 4px rgba(0,0,0,0.4);
+}
+
+.auth-fields{display:flex;flex-direction:column;gap:12px;}
+
+.auth-fields label{
+  font-size:0.75rem;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:2px;display:block;
+}
+
+.auth-fields input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:11px 14px;
+  color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:0.95rem;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+
+.auth-fields input:focus{
+  border-color:var(--c1);
+  box-shadow:0 0 0 3px rgba(232,121,249,0.1);
+}
+
+.auth-fields input::placeholder{color:var(--muted2)}
+
+.auth-btn{
+  background:linear-gradient(135deg,var(--c1),#a855f7);
+  border:none;border-radius:11px;
+  padding:13px;
+  color:#fff;font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;
+  cursor:pointer;transition:opacity 0.2s,transform 0.15s;
+  width:100%;
+}
+.auth-btn:hover{opacity:0.88;transform:scale(1.01)}
+
+.auth-err{
+  font-size:0.78rem;color:var(--danger);
+  font-family:'JetBrains Mono',monospace;
+  text-align:center;min-height:16px;
+}
+
+/* ═══════════════ MAIN APP ═══════════════ */
+#app{
+  display:none;
+  position:fixed;inset:0;
+  flex-direction:row;
+  z-index:1;
+}
+
+/* sidebar */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  height:100%;
+}
+
+.sidebar-top{
+  padding:16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+
+.sidebar-logo{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+
+.sidebar-title{
+  font-weight:800;font-size:1rem;
+  background:linear-gradient(90deg,var(--c1),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.new-chat-btn{
+  margin:12px;
+  background:linear-gradient(135deg,rgba(232,121,249,0.15),rgba(56,189,248,0.1));
+  border:1px solid var(--border2);
+  border-radius:10px;padding:10px 14px;
+  color:var(--text);font-family:'Outfit',sans-serif;font-weight:600;font-size:0.85rem;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:8px;
+}
+.new-chat-btn:hover{border-color:var(--c1);color:var(--c1);}
+
+.chats-label{
+  padding:8px 16px 4px;
+  font-size:0.65rem;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;
+}
+
+.chats-list{
+  flex:1;overflow-y:auto;padding:0 8px 8px;
+  display:flex;flex-direction:column;gap:2px;
+}
+
+.chats-list::-webkit-scrollbar{width:3px}
+.chats-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.chat-item{
+  padding:9px 10px;border-radius:9px;
+  cursor:pointer;transition:all 0.15s;
+  font-size:0.83rem;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  display:flex;align-items:center;gap:8px;
+  position:relative;
+}
+.chat-item:hover{background:var(--s2);color:var(--text);}
+.chat-item.active{background:rgba(232,121,249,0.1);color:var(--c1);border:1px solid rgba(232,121,249,0.2);}
+
+.chat-item .del-btn{
+  margin-left:auto;flex-shrink:0;
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:0.75rem;padding:2px 4px;border-radius:4px;
+  opacity:0;transition:opacity 0.15s;
+}
+.chat-item:hover .del-btn{opacity:1;}
+.chat-item .del-btn:hover{color:var(--danger);}
+
+.sidebar-bottom{
+  padding:12px;border-top:1px solid var(--border);
+}
+
+.user-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:10px;
+  background:var(--s2);
+}
+
+.user-av{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--c1),#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;font-weight:700;flex-shrink:0;
+}
+
+.user-name{font-size:0.85rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.logout-btn{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:0.8rem;padding:4px 6px;border-radius:6px;
+  transition:all 0.15s;
+}
+.logout-btn:hover{color:var(--danger);background:rgba(248,113,113,0.1);}
+
+/* main chat area */
+.chat-area{
+  flex:1;display:flex;flex-direction:column;
+  height:100%;overflow:hidden;
+  position:relative;z-index:1;
+}
+
+.chat-header{
+  padding:16px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+
+.chat-header h2{
+  font-size:0.95rem;font-weight:600;
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+.status-dot{
+  display:flex;align-items:center;gap:6px;
+  font-size:0.72rem;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c3);box-shadow:0 0 6px var(--c3);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+#chatbox{
+  flex:1;overflow-y:auto;
+  padding:20px 24px;
+  display:flex;flex-direction:column;gap:16px;
+  scroll-behavior:smooth;
+}
+#chatbox::-webkit-scrollbar{width:3px}
+#chatbox::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.empty{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:14px;color:var(--muted);text-align:center;
+}
+.empty-icon{
+  width:60px;height:60px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(232,121,249,0.12),rgba(56,189,248,0.12));
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+}
+.empty h2{font-size:1rem;font-weight:600;color:var(--text);opacity:0.6;}
+.empty p{font-size:0.8rem;max-width:240px;line-height:1.6;}
+
+.suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px;}
+.sug-btn{
+  background:var(--s2);border:1px solid var(--border2);border-radius:20px;
+  padding:7px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.78rem;
+  cursor:pointer;transition:all 0.2s;opacity:0.7;
+}
+.sug-btn:hover{border-color:var(--c1);color:var(--c1);opacity:1;}
+
+.msg{display:flex;gap:10px;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;}
+.av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;}
+.msg.user .av{background:linear-gradient(135deg,var(--c1),#a855f7);}
+.msg.ai .av{background:linear-gradient(135deg,#0e7490,var(--c2));border:1px solid rgba(56,189,248,0.3);}
+.bbl{max-width:72%;padding:12px 16px;border-radius:16px;font-size:0.92rem;line-height:1.65;word-break:break-word;}
+.msg.user .bbl{background:linear-gradient(135deg,rgba(232,121,249,0.12),rgba(168,85,247,0.1));border:1px solid rgba(232,121,249,0.2);border-top-right-radius:4px;}
+.msg.ai .bbl{background:var(--s2);border:1px solid var(--border);border-top-left-radius:4px;}
+
+.typing-dots span{display:inline-block;width:5px;height:5px;background:var(--c2);border-radius:50%;margin:0 2px;animation:blink 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+
+.input-wrap{
+  padding:14px 24px 20px;
+  border-top:1px solid var(--border);flex-shrink:0;
+}
+.input-box{
+  display:flex;gap:10px;align-items:flex-end;
+  background:var(--s1);border:1px solid var(--border2);border-radius:16px;
+  padding:10px 10px 10px 16px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.input-box:focus-within{border-color:var(--c1);box-shadow:0 0 0 3px rgba(232,121,249,0.08);}
+#userInput{
+  flex:1;background:transparent;border:none;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:0.95rem;outline:none;
+  resize:none;line-height:1.5;max-height:120px;overflow-y:auto;
+}
+#userInput::placeholder{color:var(--muted2)}
+#sendBtn{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  border:none;border-radius:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:1rem;
+  transition:opacity 0.2s,transform 0.15s;
+}
+#sendBtn:hover{opacity:0.85;transform:scale(1.08)}
+#sendBtn:disabled{opacity:0.35;cursor:not-allowed;transform:none}
+.input-hint{font-size:0.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:center;margin-top:8px;}
+
+/* mobile sidebar toggle */
+.mob-menu{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;padding:4px;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50;}
+
+@media(max-width:640px){
+  .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:60;transition:left 0.3s;}
+  .sidebar.open{left:0;}
+  .sidebar-overlay.show{display:block;}
+  .mob-menu{display:block;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ══ -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="ring">✦</div>
+      <div>
+        <h1>Denizw</h1>
+        <p>AI · powered by Groq</p>
+      </div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Intră în cont</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Cont nou</button>
+    </div>
+    <div class="auth-fields">
+      <div>
+        <label>NUME DE UTILIZATOR</label>
+        <input id="authUser" type="text" placeholder="ex: loweyy" autocomplete="off"/>
+      </div>
+      <div>
+        <label>PAROLĂ</label>
+        <input id="authPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuth()"/>
+      </div>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <button class="auth-btn" onclick="doAuth()" id="authBtn">Intră în cont</button>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">✦</div>
+      <span class="sidebar-title">Denizw</span>
+    </div>
+    <button class="new-chat-btn" onclick="newChat()">＋ Chat nou</button>
+    <div class="chats-label">CONVERSAȚII</div>
+    <div class="chats-list" id="chatsList"></div>
+    <div class="sidebar-bottom">
+      <div class="user-row">
+        <div class="user-av" id="userAv"></div>
+        <span class="user-name" id="userNameDisplay"></span>
+        <button class="logout-btn" onclick="logout()" title="Ieși din cont">⏏</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="chat-header">
+      <button class="mob-menu" onclick="openSidebar()">☰</button>
+      <h2 id="chatTitle">Chat nou</h2>
+      <div class="status-dot"><div class="dot"></div>online</div>
+    </div>
+    <div id="chatbox">
+      <div class="empty" id="emptyState">
+        <div class="empty-icon">🤖</div>
+        <h2>Bun venit la Denizw!</h2>
+        <p>Întreabă-mă orice. Sunt aici să te ajut.</p>
+        <div class="suggestions">
+          <button class="sug-btn" onclick="suggest(this)">Ce poți face?</button>
+          <button class="sug-btn" onclick="suggest(this)">Explică-mi Minecraft</button>
+          <button class="sug-btn" onclick="suggest(this)">Scrie un cod simplu</button>
+          <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
+        </div>
+      </div>
+    </div>
+    <div class="input-wrap">
+      <div class="input-box">
+        <textarea id="userInput" rows="1" placeholder="Scrie un mesaj..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-hint">Enter = trimite &nbsp;·&nbsp; Shift+Enter = linie nouă</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  ⚠️  PUNE API KEY-UL TĂU GROQ MAI JOS
+// ═══════════════════════════════════════════
+const GROQ_API_KEY = "PUNE_KEY_UL_TAU_AICI";
+// ═══════════════════════════════════════════
+
+let currentUser = null;
+let currentChatId = null;
+let messages = [];
+let authMode = 'login';
+
+// ── helpers storage ──
+function getUsers(){ try{ return JSON.parse(localStorage.getItem('dnz_users')||'{}'); }catch(e){return{};} }
+function saveUsers(u){ localStorage.setItem('dnz_users', JSON.stringify(u)); }
+function getChats(user){ try{ return JSON.parse(localStorage.getItem('dnz_chats_'+user)||'[]'); }catch(e){return[];} }
+function saveChats(user,c){ localStorage.setItem('dnz_chats_'+user, JSON.stringify(c)); }
+function hash(s){ let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(36); }
+
+// ── auth ──
+function switchTab(mode){
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'?i===0:i===1)));
+  document.getElementById('authBtn').textContent = mode==='login' ? 'Intră în cont' : 'Creează cont';
+  document.getElementById('authErr').textContent = '';
+}
+
+function doAuth(){
+  const user = document.getElementById('authUser').value.trim().toLowerCase();
+  const pass = document.getElementById('authPass').value;
+  const err = document.getElementById('authErr');
+
+  if(!user || !pass){ err.textContent='Completează toate câmpurile.'; return; }
+  if(user.length < 3){ err.textContent='Numele trebuie să aibă minim 3 caractere.'; return; }
+  if(pass.length < 4){ err.textContent='Parola trebuie să aibă minim 4 caractere.'; return; }
+
+  const users = getUsers();
+
+  if(authMode === 'signup'){
+    if(users[user]){ err.textContent='Acest nume e deja folosit.'; return; }
+    users[user] = hash(pass);
+    saveUsers(users);
+    err.style.color='var(--c3)';
+    err.textContent='Cont creat! Intri acum...';
+    setTimeout(()=>{ err.style.color=''; startSession(user); }, 800);
+  } else {
+    if(!users[user]){ err.textContent='Contul nu există.'; return; }
+    if(users[user] !== hash(pass)){ err.textContent='Parolă greșită.'; return; }
+    startSession(user);
+  }
+}
+
+function startSession(user){
+  currentUser = user;
+  localStorage.setItem('dnz_session', user);
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userNameDisplay').textContent = user;
+  document.getElementById('userAv').textContent = user[0].toUpperCase();
+  renderChatsList();
+  newChat();
+}
+
+function logout(){
+  currentUser = null;
+  currentChatId = null;
+  messages = [];
+  localStorage.removeItem('dnz_session');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authUser').value = '';
+  document.getElementById('authPass').value = '';
+  document.getElementById('authErr').textContent = '';
+  switchTab('login');
+}
+
+// auto-login
+window.addEventListener('load', ()=>{
+  const saved = localStorage.getItem('dnz_session');
+  if(saved && getUsers()[saved]){
+    startSession(saved);
+  }
+});
+
+// ── chats ──
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function newChat(){
+  currentChatId = genId();
+  messages = [];
+  renderChatbox();
+  document.getElementById('chatTitle').textContent = 'Chat nou';
+  renderChatsList();
+  closeSidebar();
+  document.getElementById('userInput').focus();
+}
+
+function renderChatsList(){
+  const list = document.getElementById('chatsList');
+  const chats = getChats(currentUser);
+  list.innerHTML = '';
+  if(!chats.length){
+    list.innerHTML = '<div style="padding:12px;font-size:0.78rem;color:var(--muted);text-align:center;">Nicio conversație încă</div>';
+    return;
+  }
+  [...chats].reverse().forEach(c=>{
+    const div = document.createElement('div');
+    div.className = 'chat-item' + (c.id===currentChatId?' active':'');
+    div.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis">💬 ${esc(c.title)}</span><button class="del-btn" onclick="deleteChat(event,'${c.id}')">✕</button>`;
+    div.onclick = ()=>loadChat(c.id);
+    list.appendChild(div);
+  });
+}
+
+function saveCurrentChat(title){
+  const chats = getChats(currentUser);
+  const idx = chats.findIndex(c=>c.id===currentChatId);
+  const obj = { id:currentChatId, title:title||'Chat nou', messages:[...messages], ts:Date.now() };
+  if(idx>=0) chats[idx]=obj; else chats.push(obj);
+  saveChats(currentUser, chats);
+  renderChatsList();
+}
+
+function loadChat(id){
+  const chats = getChats(currentUser);
+  const c = chats.find(x=>x.id===id);
+  if(!c) return;
+  currentChatId = id;
+  messages = c.messages || [];
+  document.getElementById('chatTitle').textContent = c.title;
+  renderChatbox(true);
+  renderChatsList();
+  closeSidebar();
+}
+
+function deleteChat(e, id){
+  e.stopPropagation();
+  const chats = getChats(currentUser).filter(c=>c.id!==id);
+  saveChats(currentUser, chats);
+  if(currentChatId===id) newChat();
+  else renderChatsList();
+}
+
+function renderChatbox(fromHistory=false){
+  const box = document.getElementById('chatbox');
+  box.innerHTML = '';
+  if(!messages.length){
+    box.innerHTML = `
+      <div class="empty" id="emptyState">
+        <div class="empty-icon">🤖</div>
+        <h2>Bun venit la Denizw!</h2>
+        <p>Întreabă-mă orice. Sunt aici să te ajut.</p>
+        <div class="suggestions">
+          <button class="sug-btn" onclick="suggest(this)">Ce poți face?</button>
+          <button class="sug-btn" onclick="suggest(this)">Explică-mi Minecraft</button>
+          <button class="sug-btn" onclick="suggest(this)">Scrie un cod simplu</button>
+          <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
+        </div>
+      </div>`;
+    return;
+  }
+  messages.forEach(m=>{
+    if(m.role==='system') return;
+    addMsgEl(m.role==='user'?'user':'ai', esc(m.content), false);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── chat UI ──
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+function clearEmpty(){ const e=document.getElementById('emptyState'); if(e)e.remove(); }
+
+function addMsgEl(role, html, animate=true){
+  clearEmpty();
+  const box = document.getElementById('chatbox');
+  const div = document.createElement('div');
+  div.className = 'msg '+role;
+  if(!animate) div.style.animation='none';
+  div.innerHTML = `<div class="av">${role==='user'?'👤':'✦'}</div><div class="bbl">${html}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function addTyping(){
+  clearEmpty();
+  const box = document.getElementById('chatbox');
+  const div = document.createElement('div');
+  div.className='msg ai';div.id='typing-ind';
+  div.innerHTML=`<div class="av">✦</div><div class="bbl"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  box.appendChild(div);box.scrollTop=box.scrollHeight;
+}
+
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function suggest(btn){ document.getElementById('userInput').value=btn.textContent; sendMessage(); }
+
+// ── send ──
+async function sendMessage(){
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  input.value=''; input.style.height='auto';
+  document.getElementById('sendBtn').disabled=true;
+
+  addMsgEl('user', esc(text));
+  messages.push({role:'user', content:text});
+  addTyping();
+
+  // set title from first message
+  if(messages.filter(m=>m.role==='user').length===1){
+    const title = text.slice(0,40)+(text.length>40?'…':'');
+    document.getElementById('chatTitle').textContent = title;
+  }
+
+  try{
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_API_KEY},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages:[
+          {role:'system',content:'Ești Denizw, un asistent AI prietenos și deștept. Răspunde în română dacă ți se vorbește în română. Fii concis, clar și util.'},
+          ...messages
+        ],
+        max_tokens:1024
+      })
+    });
+    const data = await res.json();
+    document.getElementById('typing-ind')?.remove();
+
+    if(data.error){
+      addMsgEl('ai','❌ Eroare: '+esc(data.error.message));
+    } else {
+      const reply = data.choices[0].message.content;
+      messages.push({role:'assistant',content:reply});
+      addMsgEl('ai', esc(reply));
+      saveCurrentChat(document.getElementById('chatTitle').textContent);
+    }
+  } catch(err){
+    document.getElementById('typing-ind')?.remove();
+    addMsgEl('ai','❌ Eroare de conexiune. Verifică conexiunea la internet.');
+  }
+
+  document.getElementById('sendBtn').disabled=false;
+  input.focus();
+}
+
+// ── mobile sidebar ──
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+</script>
+</body>
+</html>
