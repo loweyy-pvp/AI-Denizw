@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #2a2a3a;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --user-bg: #1e1b4b;
+      --ai-bg: #0f172a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,58,237,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 0 8px;
+    }
+
+    .logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #a78bfa, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-left: auto;
+    }
+
+    /* API Key setup */
+    #setup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #setup label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    #setup .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #apiKeyInput {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #apiKeyInput:focus { border-color: var(--accent); }
+
+    #saveKey {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #saveKey:hover { opacity: 0.85; }
+
+    .key-status {
+      font-size: 0.78rem;
+      font-family: 'Space Mono', monospace;
+    }
+    .key-status.ok { color: #34d399; }
+    .key-status.err { color: #f87171; }
+
+    /* Chat box */
+    #chatbox {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      height: 420px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    #chatbox::-webkit-scrollbar { width: 4px; }
+    #chatbox::-webkit-scrollbar-track { background: transparent; }
+    #chatbox::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .message.user .avatar {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+    }
+
+    .message.ai .avatar {
+      background: linear-gradient(135deg, #0e7490, var(--accent2));
+    }
+
+    .bubble {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .message.user .bubble {
+      background: var(--user-bg);
+      border: 1px solid #312e81;
+      border-top-right-radius: 4px;
+    }
+
+    .message.ai .bubble {
+      background: var(--ai-bg);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+    }
+
+    .typing span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: bounce 1s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-state .icon { font-size: 2.5rem; }
+
+    /* Input area */
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    #userInput {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      resize: none;
+      transition: border-color 0.2s;
+      line-height: 1.5;
+    }
+
+    #userInput:focus { border-color: var(--accent); }
+    #userInput::placeholder { color: var(--muted); }
+
+    #sendBtn {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 12px;
+      width: 52px;
+      cursor: pointer;
+      font-size: 1.3rem;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #sendBtn:hover { opacity: 0.85; transform: scale(1.05); }
+    #sendBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      padding-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="logo">✦</div>
+    <h1>AI Chat</h1>
+    <span>powered by Groq</span>
+  </header>
+
+  <div id="setup">
+    <label>🔑 GROQ API KEY</label>
+    <div class="row">
+      <input id="apiKeyInput" type="password" placeholder="gsk_..." autocomplete="off"/>
+      <button id="saveKey" onclick="saveKey()">Salvează</button>
+    </div>
+    <div id="keyStatus" class="key-status"></div>
+  </div>
+
+  <div id="chatbox">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">💬</div>
+      <div>Salut! Scrie un mesaj ca să începem.</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <textarea id="userInput" rows="2" placeholder="Scrie mesajul tău..." onkeydown="handleKey(event)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+
+  <footer>API key-ul tău e salvat doar local în browser • nu e trimis nicăieri altundeva</footer>
+</div>
+
+<script>
+  let apiKey = localStorage.getItem('groq_key') || '';
+  let messages = [];
+
+  if (apiKey) {
+    document.getElementById('apiKeyInput').value = '••••••••••••••••';
+    document.getElementById('keyStatus').textContent = '✓ Cheie salvată';
+    document.getElementById('keyStatus').className = 'key-status ok';
+  }
+
+  function saveKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if (!val || val.startsWith('•')) {
+      document.getElementById('keyStatus').textContent = 'Introdu cheia ta Groq.';
+      document.getElementById('keyStatus').className = 'key-status err';
+      return;
+    }
+    apiKey = val;
+    localStorage.setItem('groq_key', val);
+    document.getElementById('apiKeyInput').value = '••••••••••••••••';
+    document.getElementById('keyStatus').textContent = '✓ Cheie salvată cu succes!';
+    document.getElementById('keyStatus').className = 'key-status ok';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function addMessage(role, text) {
+    const chatbox = document.getElementById('chatbox');
+    const empty = document.getElementById('emptyState');
+    if (empty) empty.remove();
+
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.innerHTML = `
+      <div class="avatar">${role === 'user' ? '👤' : '🤖'}</div>
+      <div class="bubble">${text.replace(/\n/g, '<br>')}</div>
+    `;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const chatbox = document.getElementById('chatbox');
+    const empty = document.getElementById('emptyState');
+    if (empty) empty.remove();
+
+    const div = document.createElement('div');
+    div.className = 'message ai';
+    div.id = 'typing';
+    div.innerHTML = `
+      <div class="avatar">🤖</div>
+      <div class="bubble typing"><span></span><span></span><span></span></div>
+    `;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!apiKey) {
+      alert('Te rog introdu API key-ul Groq mai întâi!');
+      return;
+    }
+
+    input.value = '';
+    document.getElementById('sendBtn').disabled = true;
+
+    addMessage('user', text);
+    messages.push({ role: 'user', content: text });
+
+    addTyping();
+
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'llama3-8b-8192',
+          messages: [
+            { role: 'system', content: 'Ești un asistent AI prietenos. Răspunde în română dacă ți se vorbește în română.' },
+            ...messages
+          ],
+          max_tokens: 1024
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById('typing')?.remove();
+
+      if (data.error) {
+        addMessage('ai', '❌ Eroare: ' + data.error.message);
+      } else {
+        const reply = data.choices[0].message.content;
+        messages.push({ role: 'assistant', content: reply });
+        addMessage('ai', reply);
+      }
+    } catch (err) {
+      document.getElementById('typing')?.remove();
+      addMessage('ai', '❌ Eroare de conexiune. Verifică cheia API și încearcă din nou.');
+    }
+
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+</script>
+</body>
+</html>
