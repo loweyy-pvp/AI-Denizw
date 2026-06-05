@@ -59,13 +59,11 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .chat-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .chat-item-name-input{flex:1;background:var(--bg);border:1px solid var(--c1);border-radius:6px;padding:2px 6px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.83rem;outline:none;}
 .chat-actions{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity 0.15s;}
-.chat-item:hover .chat-actions{opacity:1;}
-.chat-item.active .chat-actions{opacity:1;}
+.chat-item:hover .chat-actions,.chat-item.active .chat-actions{opacity:1;}
 .ca-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.72rem;padding:2px 4px;border-radius:4px;transition:color 0.15s;}
 .ca-btn:hover{color:var(--text);}
 .ca-btn.del:hover{color:var(--danger);}
-
-.sidebar-bottom{padding:12px;border-top:1px solid var(--border);}
+.sidebar-bottom{padding:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
 .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--s2);}
 .user-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;}
 .user-av.admin{background:linear-gradient(135deg,var(--gold),#f97316);}
@@ -75,11 +73,65 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .logout-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;padding:4px 6px;border-radius:6px;transition:all 0.15s;}
 .logout-btn:hover{color:var(--danger);background:rgba(248,113,113,0.1);}
 
+/* MODEL SELECTOR PILL */
+.model-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1px solid var(--border2);
+  border-radius:10px;padding:8px 10px;
+  cursor:pointer;transition:all 0.2s;position:relative;
+}
+.model-pill:hover{border-color:var(--c1);}
+.model-pill .mp-icon{font-size:1rem;flex-shrink:0;}
+.model-pill .mp-info{flex:1;overflow:hidden;}
+.model-pill .mp-name{font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.model-pill .mp-cat{font-size:0.62rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.model-pill .mp-arrow{font-size:0.7rem;color:var(--muted);flex-shrink:0;}
+
+/* MODEL DROPDOWN */
+.model-dropdown{
+  position:fixed;bottom:80px;left:12px;width:236px;
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:14px;padding:8px;
+  z-index:200;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  display:none;
+  max-height:70vh;overflow-y:auto;
+}
+.model-dropdown.open{display:block;animation:fadeUp 0.2s ease;}
+.model-dropdown::-webkit-scrollbar{width:3px}
+.model-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.md-section{padding:6px 8px 4px;font-size:0.62rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;margin-top:4px;}
+.md-section:first-child{margin-top:0;}
+.model-option{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:9px;
+  cursor:pointer;transition:all 0.15s;
+  position:relative;
+}
+.model-option:hover:not(.locked){background:var(--s2);}
+.model-option.active{background:rgba(232,121,249,0.1);border:1px solid rgba(232,121,249,0.2);}
+.model-option.locked{opacity:0.45;cursor:not-allowed;}
+.mo-icon{font-size:1.1rem;flex-shrink:0;width:24px;text-align:center;}
+.mo-info{flex:1;overflow:hidden;}
+.mo-name{font-size:0.82rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mo-desc{font-size:0.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mo-badge{font-size:0.6rem;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;flex-shrink:0;}
+.mo-badge.free{background:rgba(74,222,128,0.15);color:var(--c3);border:1px solid rgba(74,222,128,0.3);}
+.mo-badge.admin-only{background:rgba(251,191,36,0.15);color:var(--gold);border:1px solid rgba(251,191,36,0.3);}
+.mo-lock{font-size:0.85rem;flex-shrink:0;opacity:0.6;}
+
+/* CHAT AREA */
 .chat-area{flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;position:relative;z-index:1;}
-.chat-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.chat-header{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .chat-header h2{font-size:0.95rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.status-dot{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--c3);box-shadow:0 0 6px var(--c3);animation:pulse 2s infinite;}
+.model-badge-header{
+  display:flex;align-items:center;gap:5px;
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:8px;padding:4px 10px;
+  font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--muted);
+  flex-shrink:0;
+}
+.model-badge-header .dot{width:5px;height:5px;border-radius:50%;background:var(--c3);box-shadow:0 0 5px var(--c3);animation:pulse 2s infinite;flex-shrink:0;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 #chatbox{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;}
@@ -108,7 +160,6 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .msg.ai .bbl{background:var(--s2);border:1px solid var(--border);border-top-left-radius:4px;}
 .bbl img{max-width:100%;max-height:260px;border-radius:10px;margin-bottom:6px;display:block;}
 
-/* CODE BLOCKS */
 .code-wrap{margin:8px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border2);}
 .code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#1a1a2e;border-bottom:1px solid var(--border2);}
 .code-lang{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--c2);}
@@ -118,13 +169,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .code-btn.copied{border-color:var(--c3);color:var(--c3);}
 .code-wrap pre{margin:0!important;border-radius:0!important;max-height:400px;overflow-y:auto;}
 .code-wrap pre code{font-family:'JetBrains Mono',monospace!important;font-size:0.82rem!important;}
-.code-wrap pre::-webkit-scrollbar{width:3px;height:3px}
-.code-wrap pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-
-/* inline code */
 .bbl code:not(pre code){background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--c2);}
 
-/* admin panel */
 .admin-panel{background:var(--s1);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;max-width:90%;}
 .admin-panel .ap-title{color:var(--gold);font-weight:700;margin-bottom:10px;font-size:0.82rem;}
 .admin-panel table{width:100%;border-collapse:collapse;}
@@ -155,6 +201,9 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .input-hint{font-size:0.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:center;margin-top:7px;}
 #fileInput{display:none;}
 
+/* locked tooltip */
+.lock-tooltip{position:fixed;background:var(--s1);border:1px solid rgba(251,191,36,0.4);border-radius:10px;padding:8px 12px;font-size:0.75rem;color:var(--gold);font-family:'JetBrains Mono',monospace;z-index:300;pointer-events:none;display:none;max-width:200px;text-align:center;}
+
 .mob-menu{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;padding:4px;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50;}
 @media(max-width:640px){
@@ -163,6 +212,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   .sidebar-overlay.show{display:block;}
   .mob-menu{display:block;}
   .bbl{max-width:90%;}
+  .model-dropdown{left:8px;width:calc(100vw - 16px);bottom:70px;}
 }
 </style>
 </head>
@@ -180,13 +230,17 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
       <button class="auth-tab" onclick="switchTab('signup')">Cont nou</button>
     </div>
     <div class="auth-fields">
-      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: regeledeniz" autocomplete="off"/></div>
+      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: loweyy" autocomplete="off"/></div>
       <div><label>PAROLĂ</label><input id="authPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuth()"/></div>
     </div>
     <div class="auth-err" id="authErr"></div>
     <button class="auth-btn" onclick="doAuth()" id="authBtn">Intră în cont</button>
   </div>
 </div>
+
+<!-- MODEL DROPDOWN -->
+<div class="model-dropdown" id="modelDropdown"></div>
+<div class="lock-tooltip" id="lockTooltip">🔒 Doar pentru Admin</div>
 
 <!-- APP -->
 <div id="app">
@@ -208,6 +262,15 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
         </div>
         <button class="logout-btn" onclick="logout()" title="Ieși din cont">⏏</button>
       </div>
+      <!-- model pill -->
+      <div class="model-pill" id="modelPill" onclick="toggleModelDropdown()">
+        <span class="mp-icon" id="pillIcon">🤖</span>
+        <div class="mp-info">
+          <div class="mp-name" id="pillName">Llama 4 Scout</div>
+          <div class="mp-cat" id="pillCat">Vision · Free</div>
+        </div>
+        <span class="mp-arrow">▲</span>
+      </div>
     </div>
   </div>
 
@@ -215,7 +278,10 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
     <div class="chat-header">
       <button class="mob-menu" onclick="openSidebar()">☰</button>
       <h2 id="chatTitle">Chat nou</h2>
-      <div class="status-dot"><div class="dot"></div>online</div>
+      <div class="model-badge-header">
+        <div class="dot"></div>
+        <span id="headerModelName">Llama 4 Scout</span>
+      </div>
     </div>
     <div id="chatbox"></div>
     <div class="input-wrap">
@@ -239,22 +305,126 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 // ═══════════════════════════════════════════
 //  ⚠️  PUNE API KEY-UL TĂU GROQ MAI JOS
 // ═══════════════════════════════════════════
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = "PUNE_KEY_UL_TAU_AICI";
 // ═══════════════════════════════════════════
 
 const ADMIN_USER = "denizw";
 const ADMIN_PASS_HASH = hash("denizwtest"); // schimbă parola aici
 
-let currentUser = null, isAdmin = false;
-let currentChatId = null, messages = [];
-let authMode = 'login', pendingImage = null;
+// ── ALL MODELS ──
+const MODELS = [
+  // TEXT TO TEXT
+  { id:'llama-3.3-70b-versatile', name:'Llama 3.3 70B', cat:'Text · Multilingual', icon:'🦙', section:'TEXT TO TEXT', free:true,
+    desc:'Rapid, multilingv, recomandat', adminOnly:false },
+  { id:'meta-llama/llama-4-scout-17b-16e-instruct', name:'Llama 4 Scout', cat:'Vision · Multilingual', icon:'👁️', section:'TEXT TO TEXT', free:true,
+    desc:'Vede poze, multilingv', adminOnly:false },
+  { id:'llama-3.1-70b-versatile', name:'Llama 3.1 70B', cat:'Text · Puternic', icon:'🦙', section:'TEXT TO TEXT', free:true,
+    desc:'Cel mai puternic Llama 3', adminOnly:false },
+
+  // REASONING
+  { id:'gpt-oss-120b', name:'GPT OSS 120B', cat:'Reasoning · Avansat', icon:'⚡', section:'REASONING', free:false,
+    desc:'Cel mai puternic reasoning', adminOnly:true },
+  { id:'gpt-oss-20b', name:'GPT OSS 20B', cat:'Reasoning · Rapid', icon:'⚡', section:'REASONING', free:false,
+    desc:'Reasoning rapid', adminOnly:true },
+  { id:'qwen-qwq-32b', name:'Qwen 3 32B', cat:'Reasoning · Multilingv', icon:'🌐', section:'REASONING', free:false,
+    desc:'Reasoning multilingv', adminOnly:true },
+
+  // FUNCTION CALLING
+  { id:'gpt-oss-120b-tools', name:'GPT OSS 120B Tools', cat:'Function Calling', icon:'🔧', section:'FUNCTION CALLING', free:false,
+    desc:'Tool use avansat', adminOnly:true },
+  { id:'gpt-oss-20b-tools', name:'GPT OSS 20B Tools', cat:'Function Calling · Rapid', icon:'🔧', section:'FUNCTION CALLING', free:false,
+    desc:'Tool use rapid', adminOnly:true },
+  { id:'qwen3-32b-tools', name:'Qwen 3 32B Tools', cat:'Function Calling', icon:'🔧', section:'FUNCTION CALLING', free:false,
+    desc:'Tool use multilingv', adminOnly:true },
+];
+
+const DEFAULT_MODEL_ID = 'meta-llama/llama-4-scout-17b-16e-instruct';
+
+let currentUser=null, isAdmin=false;
+let currentChatId=null, messages=[];
+let authMode='login', pendingImage=null;
+let currentModel=MODELS.find(m=>m.id===DEFAULT_MODEL_ID);
+let customSysPrompt=null;
 
 // ── storage ──
-function getUsers(){ try{return JSON.parse(localStorage.getItem('dnz_users')||'{}')}catch(e){return{}} }
-function saveUsers(u){ localStorage.setItem('dnz_users',JSON.stringify(u)) }
-function getChats(user){ try{return JSON.parse(localStorage.getItem('dnz_chats_'+user)||'[]')}catch(e){return[]} }
-function saveChats(user,c){ localStorage.setItem('dnz_chats_'+user,JSON.stringify(c)) }
-function hash(s){ let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(36) }
+function getUsers(){try{return JSON.parse(localStorage.getItem('dnz_users')||'{}')}catch(e){return{}}}
+function saveUsers(u){localStorage.setItem('dnz_users',JSON.stringify(u))}
+function getChats(user){try{return JSON.parse(localStorage.getItem('dnz_chats_'+user)||'[]')}catch(e){return[]}}
+function saveChats(user,c){localStorage.setItem('dnz_chats_'+user,JSON.stringify(c))}
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(36)}
+
+// ── MODEL DROPDOWN ──
+function buildModelDropdown(){
+  const dd=document.getElementById('modelDropdown');
+  const sections=[...new Set(MODELS.map(m=>m.section))];
+  let html='';
+  sections.forEach(sec=>{
+    html+=`<div class="md-section">${sec}</div>`;
+    MODELS.filter(m=>m.section===sec).forEach(m=>{
+      const locked=m.adminOnly&&!isAdmin;
+      const active=currentModel.id===m.id;
+      html+=`<div class="model-option ${locked?'locked':''} ${active?'active':''}" 
+        data-id="${m.id}" onclick="selectModel('${m.id}',${locked})" 
+        ${locked?`onmouseenter="showLockTip(event)" onmouseleave="hideLockTip()"`:''}
+      >
+        <span class="mo-icon">${m.icon}</span>
+        <div class="mo-info">
+          <div class="mo-name">${m.name}</div>
+          <div class="mo-desc">${m.desc}</div>
+        </div>
+        ${locked
+          ? `<span class="mo-lock">🔒</span>`
+          : `<span class="mo-badge ${m.adminOnly?'admin-only':'free'}">${m.adminOnly?'ADMIN':'FREE'}</span>`
+        }
+      </div>`;
+    });
+  });
+  dd.innerHTML=html;
+}
+
+function toggleModelDropdown(){
+  const dd=document.getElementById('modelDropdown');
+  buildModelDropdown();
+  dd.classList.toggle('open');
+  if(dd.classList.contains('open')){
+    setTimeout(()=>document.addEventListener('click',closeDropdownOutside),50);
+  }
+}
+
+function closeDropdownOutside(e){
+  const dd=document.getElementById('modelDropdown');
+  const pill=document.getElementById('modelPill');
+  if(!dd.contains(e.target)&&!pill.contains(e.target)){
+    dd.classList.remove('open');
+    document.removeEventListener('click',closeDropdownOutside);
+  }
+}
+
+function selectModel(id, locked){
+  if(locked){ showLockMsg(); return; }
+  const m=MODELS.find(x=>x.id===id);
+  if(!m) return;
+  currentModel=m;
+  document.getElementById('pillIcon').textContent=m.icon;
+  document.getElementById('pillName').textContent=m.name;
+  document.getElementById('pillCat').textContent=m.cat;
+  document.getElementById('headerModelName').textContent=m.name;
+  document.getElementById('modelDropdown').classList.remove('open');
+  document.removeEventListener('click',closeDropdownOutside);
+}
+
+function showLockTip(e){
+  const tip=document.getElementById('lockTooltip');
+  tip.style.display='block';
+  tip.style.left=(e.clientX+10)+'px';
+  tip.style.top=(e.clientY-40)+'px';
+}
+function hideLockTip(){
+  document.getElementById('lockTooltip').style.display='none';
+}
+function showLockMsg(){
+  showAdminPanel('🔒 MODEL BLOCAT',`<div style="color:var(--gold)">Acest model este disponibil doar pentru <b>Admin</b>.<br><br>Modelele gratuite disponibile pentru tine:<br><span style="color:var(--c3)">• Llama 4 Scout (poze)<br>• Llama 3.3 70B<br>• Llama 3.1 70B</span></div>`);
+}
 
 // ── auth ──
 function switchTab(mode){
@@ -288,6 +458,8 @@ function doAuth(){
 }
 function startSession(user,admin){
   currentUser=user;isAdmin=admin;
+  // reset model to default on login
+  currentModel=MODELS.find(m=>m.id===DEFAULT_MODEL_ID);
   localStorage.setItem('dnz_session',JSON.stringify({user,admin}));
   document.getElementById('authScreen').style.display='none';
   document.getElementById('app').style.display='flex';
@@ -295,6 +467,10 @@ function startSession(user,admin){
   const av=document.getElementById('userAv');
   av.textContent=user[0].toUpperCase();av.className='user-av '+(admin?'admin':'normal');
   document.getElementById('adminBadge').style.display=admin?'block':'none';
+  document.getElementById('pillIcon').textContent=currentModel.icon;
+  document.getElementById('pillName').textContent=currentModel.name;
+  document.getElementById('pillCat').textContent=currentModel.cat;
+  document.getElementById('headerModelName').textContent=currentModel.name;
   if(admin) document.getElementById('inputHint').innerHTML='Enter=trimite &nbsp;·&nbsp; !help pentru comenzi admin';
   renderChatsList();newChat();
 }
@@ -307,6 +483,7 @@ function logout(){
   document.getElementById('authPass').value='';
   document.getElementById('authErr').textContent='';
   removeImage();switchTab('login');
+  document.getElementById('modelDropdown').classList.remove('open');
 }
 window.addEventListener('load',()=>{
   try{
@@ -319,125 +496,84 @@ window.addEventListener('load',()=>{
 });
 
 // ── ADMIN COMMANDS ──
-const adminHelp = `
-<table>
+const adminHelp=`<table>
   <tr><th>Comandă</th><th>Descriere</th></tr>
   <tr><td style="color:var(--c2)">!help</td><td>Această listă</td></tr>
-  <tr><td style="color:var(--c2)">!clear</td><td>Șterge toate chaturile tale</td></tr>
-  <tr><td style="color:var(--c2)">!stats</td><td>Statistici despre contul tău</td></tr>
-  <tr><td style="color:var(--c2)">!rename [text]</td><td>Redenumește chatul curent</td></tr>
-  <tr><td style="color:var(--c2)">!newchat</td><td>Deschide un chat nou</td></tr>
-  <tr><td style="color:var(--c2)">!export</td><td>Exportă conversația curentă ca .txt</td></tr>
-  <tr><td style="color:var(--c2)">!theme dark</td><td>Temă întunecată (default)</td></tr>
-  <tr><td style="color:var(--c2)">!theme purple</td><td>Temă violet</td></tr>
-  <tr><td style="color:var(--c2)">!theme cyan</td><td>Temă cyan</td></tr>
-  <tr><td style="color:var(--c2)">!model scout</td><td>Folosește llama-4-scout (vede poze)</td></tr>
-  <tr><td style="color:var(--c2)">!model fast</td><td>Folosește llama-3.3-70b (rapid)</td></tr>
-  <tr><td style="color:var(--c2)">!model big</td><td>Folosește llama-3.1-70b (puternic)</td></tr>
-  <tr><td style="color:var(--c2)">!sys [text]</td><td>Schimbă personalitatea AI-ului</td></tr>
-  <tr><td style="color:var(--c2)">!resetsys</td><td>Resetează personalitatea AI la default</td></tr>
+  <tr><td style="color:var(--c2)">!clear</td><td>Șterge toate chaturile</td></tr>
+  <tr><td style="color:var(--c2)">!stats</td><td>Statistici cont</td></tr>
+  <tr><td style="color:var(--c2)">!rename [text]</td><td>Redenumește chat curent</td></tr>
+  <tr><td style="color:var(--c2)">!export</td><td>Exportă conversația ca .txt</td></tr>
+  <tr><td style="color:var(--c2)">!theme dark/purple/cyan</td><td>Schimbă tema</td></tr>
+  <tr><td style="color:var(--c2)">!sys [text]</td><td>Schimbă personalitatea AI</td></tr>
+  <tr><td style="color:var(--c2)">!resetsys</td><td>Resetează personalitatea AI</td></tr>
+  <tr><td style="color:var(--c2)">!models</td><td>Lista tuturor modelelor</td></tr>
 </table>`;
-
-let currentModel = 'meta-llama/llama-4-scout-17b-16e-instruct';
-let customSysPrompt = null;
 
 function handleAdminCommand(cmd){
   const parts=cmd.trim().split(' ');
   const c=parts[0].toLowerCase();
-
-  if(c==='!help'){ showAdminPanel('📋 COMENZI ADMIN',adminHelp);return true; }
-
-  if(c==='!clear'){
-    saveChats(currentUser,[]);
-    newChat();
-    showAdminPanel('✅ GATA','<div style="color:var(--c3)">Toate conversațiile au fost șterse.</div>');
-    return true;
-  }
-
+  if(c==='!help'){showAdminPanel('📋 COMENZI ADMIN',adminHelp);return true}
+  if(c==='!clear'){saveChats(currentUser,[]);newChat();showAdminPanel('✅','<div style="color:var(--c3)">Toate conversațiile șterse.</div>');return true}
   if(c==='!stats'){
     const chats=getChats(currentUser);
-    const totalMsgs=chats.reduce((a,ch)=>(a+(ch.messages||[]).filter(m=>m.role!=='system').length),0);
-    showAdminPanel('📊 STATISTICI',`
-      <table>
-        <tr><th>Info</th><th>Valoare</th></tr>
-        <tr><td>Username</td><td style="color:var(--c2)">${esc(currentUser)} 👑</td></tr>
-        <tr><td>Conversații</td><td style="color:var(--c3)">${chats.length}</td></tr>
-        <tr><td>Mesaje totale</td><td style="color:var(--c3)">${totalMsgs}</td></tr>
-        <tr><td>Model activ</td><td style="color:var(--gold)">${currentModel.split('/').pop()}</td></tr>
-        <tr><td>Personalitate</td><td style="color:var(--muted)">${customSysPrompt?'Custom':'Default'}</td></tr>
-      </table>`);
+    const tot=chats.reduce((a,ch)=>a+(ch.messages||[]).filter(m=>m.role!=='system').length,0);
+    showAdminPanel('📊 STATISTICI',`<table>
+      <tr><th>Info</th><th>Valoare</th></tr>
+      <tr><td>Username</td><td style="color:var(--c2)">${esc(currentUser)} 👑</td></tr>
+      <tr><td>Conversații</td><td style="color:var(--c3)">${chats.length}</td></tr>
+      <tr><td>Mesaje totale</td><td style="color:var(--c3)">${tot}</td></tr>
+      <tr><td>Model activ</td><td style="color:var(--gold)">${currentModel.name}</td></tr>
+      <tr><td>Personalitate</td><td style="color:var(--muted)">${customSysPrompt?'Custom':'Default'}</td></tr>
+    </table>`);
     return true;
   }
-
   if(c==='!rename'){
-    const newName=parts.slice(1).join(' ').trim();
-    if(!newName){showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !rename [nume nou]</div>');return true;}
-    renameChatById(currentChatId,newName);
-    document.getElementById('chatTitle').textContent=newName;
-    showAdminPanel('✅ REDENUMIT',`<div style="color:var(--c3)">Chat redenumit în: <b>${esc(newName)}</b></div>`);
+    const n=parts.slice(1).join(' ').trim();
+    if(!n){showAdminPanel('⚠️','<div style="color:var(--danger)">Folosire: !rename [nume]</div>');return true}
+    renameChatById(currentChatId,n);
+    document.getElementById('chatTitle').textContent=n;
+    showAdminPanel('✅',`<div style="color:var(--c3)">Redenumit în: <b>${esc(n)}</b></div>`);
     return true;
   }
-
-  if(c==='!newchat'){ newChat();return true; }
-
   if(c==='!export'){
     const chats=getChats(currentUser);
     const chat=chats.find(x=>x.id===currentChatId);
-    if(!chat||!messages.length){showAdminPanel('⚠️','<div style="color:var(--danger)">Niciun mesaj de exportat.</div>');return true;}
+    if(!chat||!messages.length){showAdminPanel('⚠️','<div style="color:var(--danger)">Niciun mesaj de exportat.</div>');return true}
     let txt=`Conversație: ${chat.title}\nData: ${new Date().toLocaleString('ro')}\n${'─'.repeat(50)}\n\n`;
     messages.filter(m=>m.role!=='system').forEach(m=>{
       const role=m.role==='user'?`[${currentUser.toUpperCase()}]`:'[DENIZW AI]';
       const content=Array.isArray(m.content)?m.content.map(p=>p.type==='text'?p.text:'[imagine]').join(' '):m.content;
       txt+=`${role}\n${content}\n\n`;
     });
-    downloadFile(chat.title.replace(/[^a-z0-9]/gi,'_')+'.txt', txt, 'text/plain');
-    showAdminPanel('✅ EXPORTAT',`<div style="color:var(--c3)">Conversația a fost descărcată ca fișier .txt</div>`);
+    downloadFile(chat.title.replace(/[^a-z0-9]/gi,'_')+'.txt',txt,'text/plain');
+    showAdminPanel('✅ EXPORTAT','<div style="color:var(--c3)">Descărcat ca .txt</div>');
     return true;
   }
-
   if(c==='!theme'){
     const t=parts[1]?.toLowerCase();
-    const themes={
-      dark:{c1:'#e879f9',c2:'#38bdf8'},
-      purple:{c1:'#a78bfa',c2:'#c084fc'},
-      cyan:{c1:'#22d3ee',c2:'#67e8f9'},
-    };
-    if(!themes[t]){showAdminPanel('⚠️ EROARE',`<div style="color:var(--danger)">Teme disponibile: dark, purple, cyan</div>`);return true;}
+    const themes={dark:{c1:'#e879f9',c2:'#38bdf8'},purple:{c1:'#a78bfa',c2:'#c084fc'},cyan:{c1:'#22d3ee',c2:'#67e8f9'}};
+    if(!themes[t]){showAdminPanel('⚠️','<div style="color:var(--danger)">Teme: dark, purple, cyan</div>');return true}
     document.documentElement.style.setProperty('--c1',themes[t].c1);
     document.documentElement.style.setProperty('--c2',themes[t].c2);
-    showAdminPanel('🎨 TEMĂ',`<div style="color:var(--c3)">Temă schimbată în: <b>${t}</b></div>`);
+    showAdminPanel('🎨',`<div style="color:var(--c3)">Temă: <b>${t}</b></div>`);
     return true;
   }
-
-  if(c==='!model'){
-    const m=parts[1]?.toLowerCase();
-    const models={
-      scout:'meta-llama/llama-4-scout-17b-16e-instruct',
-      fast:'llama-3.3-70b-versatile',
-      big:'llama-3.1-70b-versatile',
-    };
-    if(!models[m]){showAdminPanel('⚠️ EROARE',`<div style="color:var(--danger)">Modele: scout, fast, big</div>`);return true;}
-    currentModel=models[m];
-    showAdminPanel('🤖 MODEL',`<div style="color:var(--c3)">Model schimbat în: <b>${models[m].split('/').pop()}</b></div>`);
-    return true;
-  }
-
   if(c==='!sys'){
-    const prompt=parts.slice(1).join(' ').trim();
-    if(!prompt){showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !sys [descriere personalitate]</div>');return true;}
-    customSysPrompt=prompt;
-    showAdminPanel('🧠 PERSONALITATE',`<div style="color:var(--c3)">AI-ul va fi acum: <b>${esc(prompt)}</b></div>`);
+    const p=parts.slice(1).join(' ').trim();
+    if(!p){showAdminPanel('⚠️','<div style="color:var(--danger)">Folosire: !sys [personalitate]</div>');return true}
+    customSysPrompt=p;
+    showAdminPanel('🧠',`<div style="color:var(--c3)">Personalitate setată: <b>${esc(p)}</b></div>`);
     return true;
   }
-
-  if(c==='!resetsys'){
-    customSysPrompt=null;
-    showAdminPanel('🧠 RESETAT','<div style="color:var(--c3)">Personalitatea AI a fost resetată la default.</div>');
+  if(c==='!resetsys'){customSysPrompt=null;showAdminPanel('🧠','<div style="color:var(--c3)">Personalitate resetată.</div>');return true}
+  if(c==='!models'){
+    let html='<table><tr><th>Model</th><th>Categorie</th><th>Acces</th></tr>';
+    MODELS.forEach(m=>{html+=`<tr><td style="color:var(--c2)">${m.icon} ${m.name}</td><td style="color:var(--muted)">${m.section}</td><td style="color:${m.adminOnly?'var(--gold)':'var(--c3)'}">${m.adminOnly?'👑 Admin':'🆓 Free'}</td></tr>`});
+    html+='</table>';
+    showAdminPanel('🤖 MODELE DISPONIBILE',html);
     return true;
   }
-
-  // unknown command
-  showAdminPanel('❓ COMANDĂ NECUNOSCUTĂ',`<div style="color:var(--danger)">Comandă necunoscută: <b>${esc(cmd)}</b><br><br>Scrie <b>!help</b> pentru lista completă.</div>`);
+  showAdminPanel('❓',`<div style="color:var(--danger)">Comandă necunoscută. Scrie <b>!help</b>.</div>`);
   return true;
 }
 
@@ -450,61 +586,34 @@ function showAdminPanel(title,content){
   box.appendChild(div);box.scrollTop=box.scrollHeight;
 }
 
-// ── markdown/code renderer ──
+// ── markdown ──
 function renderMarkdown(text){
-  // code blocks ```lang\ncode```
-  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const cleanLang = lang.trim() || 'text';
-    const id = 'cb_' + Math.random().toString(36).slice(2,8);
-    // guess filename extension
-    const extMap = {javascript:'js',typescript:'ts',python:'py',lua:'lua',html:'html',css:'css',bash:'sh',shell:'sh',java:'java',cpp:'cpp',c:'c',rust:'rs',go:'go',json:'json',xml:'xml',yaml:'yml',sql:'sql',php:'php',ruby:'rb',swift:'swift',kotlin:'kt'};
-    const ext = extMap[cleanLang.toLowerCase()] || cleanLang.toLowerCase() || 'txt';
-    const filename = `script.${ext}`;
-    return `<div class="code-wrap">
-      <div class="code-header">
-        <span class="code-lang">${cleanLang}</span>
-        <div class="code-btns">
-          <button class="code-btn" onclick="copyCode('${id}',this)">📋 Copy</button>
-          <button class="code-btn" onclick="downloadCode('${id}','${filename}')">⬇ ${filename}</button>
-        </div>
-      </div>
-      <pre><code id="${id}" class="language-${cleanLang}">${escHtml(code.trim())}</code></pre>
-    </div>`;
+  text=text.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+    const cleanLang=lang.trim()||'text';
+    const id='cb_'+Math.random().toString(36).slice(2,8);
+    const extMap={javascript:'js',typescript:'ts',python:'py',lua:'lua',html:'html',css:'css',bash:'sh',shell:'sh',java:'java',cpp:'cpp',c:'c',rust:'rs',go:'go',json:'json',xml:'xml',yaml:'yml',sql:'sql',php:'php',ruby:'rb',swift:'swift',kotlin:'kt'};
+    const ext=extMap[cleanLang.toLowerCase()]||cleanLang.toLowerCase()||'txt';
+    return `<div class="code-wrap"><div class="code-header"><span class="code-lang">${cleanLang}</span><div class="code-btns"><button class="code-btn" onclick="copyCode('${id}',this)">📋 Copy</button><button class="code-btn" onclick="downloadCode('${id}','script.${ext}')">⬇ script.${ext}</button></div></div><pre><code id="${id}" class="language-${cleanLang}">${escHtml(code.trim())}</code></pre></div>`;
   });
-  // inline code `code`
-  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // bold **text**
-  text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-  // italic *text*
-  text = text.replace(/\*(.*?)\*/g, '<i>$1</i>');
-  // newlines
-  text = text.replace(/\n/g, '<br>');
+  text=text.replace(/`([^`]+)`/g,'<code>$1</code>');
+  text=text.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
+  text=text.replace(/\*(.*?)\*/g,'<i>$1</i>');
+  text=text.replace(/\n/g,'<br>');
   return text;
 }
-
-function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') }
-
-function copyCode(id, btn){
-  const code = document.getElementById(id)?.innerText || '';
-  navigator.clipboard.writeText(code).then(()=>{
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+function copyCode(id,btn){
+  navigator.clipboard.writeText(document.getElementById(id)?.innerText||'').then(()=>{
     btn.textContent='✓ Copiat!';btn.classList.add('copied');
     setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('copied')},2000);
   });
 }
-
-function downloadCode(id, filename){
-  const code = document.getElementById(id)?.innerText || '';
-  downloadFile(filename, code, 'text/plain');
-}
-
-function downloadFile(filename, content, type){
-  const blob = new Blob([content], {type});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
+function downloadCode(id,filename){downloadFile(filename,document.getElementById(id)?.innerText||'','text/plain')}
+function downloadFile(filename,content,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=filename;a.click();URL.revokeObjectURL(a.href);
 }
 
 // ── image ──
@@ -531,23 +640,19 @@ function removeImage(){
 }
 
 // ── chats ──
-function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6) }
-
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function newChat(){
-  currentChatId=genId();messages=[];
-  renderChatbox();
+  currentChatId=genId();messages=[];renderChatbox();
   document.getElementById('chatTitle').textContent='Chat nou';
   renderChatsList();closeSidebar();
   document.getElementById('userInput').focus();
 }
-
-function renameChatById(id, name){
+function renameChatById(id,name){
   const chats=getChats(currentUser);
   const idx=chats.findIndex(c=>c.id===id);
   if(idx>=0){chats[idx].title=name;saveChats(currentUser,chats);}
   renderChatsList();
 }
-
 function renderChatsList(){
   const list=document.getElementById('chatsList');
   const chats=getChats(currentUser);
@@ -557,119 +662,90 @@ function renderChatsList(){
     const div=document.createElement('div');
     div.className='chat-item'+(c.id===currentChatId?' active':'');
     div.dataset.id=c.id;
-    div.innerHTML=`
-      <span class="chat-item-name">💬 ${esc(c.title)}</span>
-      <div class="chat-actions">
-        <button class="ca-btn" title="Redenumește" onclick="startRename(event,'${c.id}')">✏️</button>
-        <button class="ca-btn del" title="Șterge" onclick="deleteChat(event,'${c.id}')">✕</button>
-      </div>`;
-    div.onclick=(e)=>{ if(e.target.classList.contains('ca-btn')||e.target.classList.contains('chat-item-name-input')) return; loadChat(c.id); };
-    // double click to rename
-    div.ondblclick=(e)=>{ if(e.target.tagName==='BUTTON') return; startRename(e,c.id); };
+    div.innerHTML=`<span class="chat-item-name">💬 ${esc(c.title)}</span><div class="chat-actions"><button class="ca-btn" onclick="startRename(event,'${c.id}')">✏️</button><button class="ca-btn del" onclick="deleteChat(event,'${c.id}')">✕</button></div>`;
+    div.onclick=(e)=>{if(e.target.classList.contains('ca-btn')||e.target.classList.contains('chat-item-name-input'))return;loadChat(c.id)};
+    div.ondblclick=(e)=>{if(e.target.tagName==='BUTTON')return;startRename(e,c.id)};
     list.appendChild(div);
   });
 }
-
-function startRename(e, id){
+function startRename(e,id){
   e.stopPropagation();
-  const item=document.querySelector(`.chat-item[data-id="${id}"]`);
-  if(!item) return;
+  const item=document.querySelector(`.chat-item[data-id="${id}"]`);if(!item)return;
   const nameEl=item.querySelector('.chat-item-name');
-  const currentName=nameEl.textContent.replace('💬 ','').trim();
+  const cur=nameEl.textContent.replace('💬 ','').trim();
   const input=document.createElement('input');
-  input.className='chat-item-name-input';
-  input.value=currentName;
-  nameEl.replaceWith(input);
-  input.focus();input.select();
-  const finish=()=>{
-    const newName=input.value.trim()||currentName;
-    renameChatById(id,newName);
-    if(id===currentChatId) document.getElementById('chatTitle').textContent=newName;
-  };
+  input.className='chat-item-name-input';input.value=cur;
+  nameEl.replaceWith(input);input.focus();input.select();
+  const finish=()=>{const n=input.value.trim()||cur;renameChatById(id,n);if(id===currentChatId)document.getElementById('chatTitle').textContent=n;};
   input.onblur=finish;
-  input.onkeydown=(e)=>{ if(e.key==='Enter'){e.preventDefault();input.blur();} if(e.key==='Escape'){input.value=currentName;input.blur();} };
+  input.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault();input.blur();}if(e.key==='Escape'){input.value=cur;input.blur();}};
 }
-
 function saveCurrentChat(title){
   const chats=getChats(currentUser);
   const idx=chats.findIndex(c=>c.id===currentChatId);
   const lightMsgs=messages.map(m=>{
-    if(Array.isArray(m.content)) return {...m,content:m.content.map(p=>p.type==='image_url'?{type:'image_url',image_url:{url:'[image]'}}:p)};
+    if(Array.isArray(m.content))return{...m,content:m.content.map(p=>p.type==='image_url'?{type:'image_url',image_url:{url:'[image]'}}:p)};
     return m;
   });
   const obj={id:currentChatId,title:title||'Chat nou',messages:lightMsgs,ts:Date.now()};
-  if(idx>=0) chats[idx]=obj; else chats.push(obj);
+  if(idx>=0)chats[idx]=obj;else chats.push(obj);
   saveChats(currentUser,chats);renderChatsList();
 }
-
 function loadChat(id){
-  const chats=getChats(currentUser);
-  const c=chats.find(x=>x.id===id);
-  if(!c) return;
+  const c=getChats(currentUser).find(x=>x.id===id);if(!c)return;
   currentChatId=id;messages=c.messages||[];
   document.getElementById('chatTitle').textContent=c.title;
   renderChatbox(true);renderChatsList();closeSidebar();
 }
-
 function deleteChat(e,id){
   e.stopPropagation();
-  const chats=getChats(currentUser).filter(c=>c.id!==id);
-  saveChats(currentUser,chats);
-  if(currentChatId===id) newChat(); else renderChatsList();
+  saveChats(currentUser,getChats(currentUser).filter(c=>c.id!==id));
+  if(currentChatId===id)newChat();else renderChatsList();
 }
-
 function renderChatbox(){
-  const box=document.getElementById('chatbox');
-  box.innerHTML='';
+  const box=document.getElementById('chatbox');box.innerHTML='';
   if(!messages.length){
     box.innerHTML=`<div class="empty" id="emptyState">
       <div class="empty-icon">${isAdmin?'👑':'🤖'}</div>
       <h2>${isAdmin?'Bun venit, lider! 👑':'Bun venit la Denizw!'}</h2>
-      <p>${isAdmin?'Scrie !help pentru comenzile de admin.':'Întreabă-mă orice sau trimite o poză!'}</p>
+      <p>${isAdmin?'Scrie !help pentru comenzi. Folosești: '+currentModel.name:'Folosești: '+currentModel.name+' · Schimbă modelul din sidebar'}</p>
       <div class="suggestions">
         <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!help':'Ce poți face?'}</button>
-        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!stats':'De ce Deniz e asa urat?'}</button>
-        <button class="sug-btn" onclick="suggest(this)">Fami temele</button>
+        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!stats':'Explică-mi Minecraft'}</button>
+        <button class="sug-btn" onclick="suggest(this)">Scrie un script Lua Roblox</button>
         <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
       </div></div>`;
     return;
   }
   messages.forEach(m=>{
-    if(m.role==='system') return;
+    if(m.role==='system')return;
     if(Array.isArray(m.content)){
-      let imgHtml='',textHtml='';
+      let ih='',th='';
       m.content.forEach(p=>{
-        if(p.type==='image_url'){const src=p.image_url.url==='[image]'?'':p.image_url.url;imgHtml=src?`<img src="${src}" alt="imagine"/>`:`<div style="font-size:0.78rem;color:var(--muted)">🖼 [imagine]</div>`;}
-        if(p.type==='text') textHtml=esc(p.text);
+        if(p.type==='image_url'){const src=p.image_url.url==='[image]'?'':p.image_url.url;ih=src?`<img src="${src}" alt="img"/>`:`<div style="font-size:0.78rem;color:var(--muted)">🖼 [imagine]</div>`;}
+        if(p.type==='text')th=esc(p.text);
       });
-      addMsgEl('user',imgHtml+(textHtml?`<div style="margin-top:${imgHtml?'6px':'0'}">${textHtml}</div>`:''),false);
+      addMsgEl('user',ih+(th?`<div style="margin-top:${ih?'6px':'0'}">${th}</div>`:''),false);
     } else {
-      const role=m.role==='user'?'user':'ai';
-      const html=role==='ai'?renderMarkdown(m.content):esc(m.content);
-      addMsgEl(role,html,false);
+      addMsgEl(m.role==='user'?'user':'ai',m.role==='ai'?renderMarkdown(m.content):esc(m.content),false);
     }
   });
-  // highlight all code blocks
   box.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
   box.scrollTop=box.scrollHeight;
 }
-
-function clearEmpty(){ const e=document.getElementById('emptyState');if(e)e.remove() }
-
+function clearEmpty(){const e=document.getElementById('emptyState');if(e)e.remove()}
 function addMsgEl(role,html,animate=true){
   clearEmpty();
   const box=document.getElementById('chatbox');
   const div=document.createElement('div');
   div.className='msg '+role+(isAdmin&&role==='user'?' is-admin':'');
-  if(!animate) div.style.animation='none';
+  if(!animate)div.style.animation='none';
   div.innerHTML=`<div class="av">${role==='user'?(isAdmin?'👑':'👤'):'✦'}</div><div class="bbl">${html}</div>`;
   box.appendChild(div);
-  // highlight code in new message
   div.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
   box.scrollTop=box.scrollHeight;
   return div;
 }
-
 function addTyping(){
   clearEmpty();
   const box=document.getElementById('chatbox');
@@ -678,58 +754,39 @@ function addTyping(){
   div.innerHTML=`<div class="av">✦</div><div class="bbl"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   box.appendChild(div);box.scrollTop=box.scrollHeight;
 }
-
-function autoResize(el){ el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px' }
-function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()} }
-function suggest(btn){ document.getElementById('userInput').value=btn.textContent;sendMessage() }
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+function suggest(btn){document.getElementById('userInput').value=btn.textContent;sendMessage()}
 
 async function sendMessage(){
   const input=document.getElementById('userInput');
   const text=input.value.trim();
-  if(!text&&!pendingImage) return;
-
-  if(isAdmin&&text.startsWith('!')){
-    const handled=handleAdminCommand(text);
-    if(handled){input.value='';input.style.height='auto';return}
-  }
-
+  if(!text&&!pendingImage)return;
+  if(isAdmin&&text.startsWith('!')){const h=handleAdminCommand(text);if(h){input.value='';input.style.height='auto';return}}
   input.value='';input.style.height='auto';
   document.getElementById('sendBtn').disabled=true;
-
   let userContent,displayHtml='';
   if(pendingImage){
     userContent=[{type:'image_url',image_url:{url:`data:${pendingImage.mimeType};base64,${pendingImage.base64}`}}];
-    displayHtml=`<img src="${pendingImage.dataUrl}" alt="imagine"/>`;
+    displayHtml=`<img src="${pendingImage.dataUrl}" alt="img"/>`;
     if(text){userContent.push({type:'text',text});displayHtml+=`<div style="margin-top:6px">${esc(text)}</div>`;}
     removeImage();
-  } else {
-    userContent=text;displayHtml=esc(text);
-  }
-
+  } else {userContent=text;displayHtml=esc(text);}
   addMsgEl('user',displayHtml);
   messages.push({role:'user',content:userContent});
-
   if(messages.filter(m=>m.role==='user').length===1){
     const title=(text||'Imagine').slice(0,40)+((text||'').length>40?'…':'');
     document.getElementById('chatTitle').textContent=title;
   }
-
   addTyping();
-
-  const sysPrompt = customSysPrompt ||
-    (isAdmin
-      ? `Ești Denizw, un asistent AI. Utilizatorul "${currentUser}" este LIDERUL și administratorul acestui site. Tratează-l cu respect, numește-l "lider" când e natural. Când dai cod, folosește întotdeauna blocuri de cod cu limbajul specificat (\`\`\`lua, \`\`\`javascript etc). Răspunde în română dacă ți se vorbește în română.`
-      : `Ești Denizw, un asistent AI prietenos. Utilizatorul se numește "${currentUser}". Când dai cod, folosește întotdeauna blocuri de cod cu limbajul specificat (\`\`\`lua, \`\`\`javascript etc). Răspunde în română dacă ți se vorbește în română. Fii concis și util.`);
-
+  const sys=customSysPrompt||(isAdmin
+    ?`Ești Denizw AI. Utilizatorul "${currentUser}" este LIDERUL și administratorul. Tratează-l cu respect, numește-l "lider". Când dai cod, folosește blocuri de cod cu limbajul specificat. Răspunde în română dacă ți se vorbește în română.`
+    :`Ești Denizw AI, asistent prietenos. Utilizatorul se numește "${currentUser}". Când dai cod, folosește blocuri de cod cu limbajul specificat. Răspunde în română dacă ți se vorbește în română. Fii concis și util.`);
   try{
     const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_API_KEY},
-      body:JSON.stringify({
-        model:currentModel,
-        messages:[{role:'system',content:sysPrompt},...messages],
-        max_tokens:2048
-      })
+      body:JSON.stringify({model:currentModel.id,messages:[{role:'system',content:sys},...messages],max_tokens:2048})
     });
     const data=await res.json();
     document.getElementById('typing-ind')?.remove();
@@ -747,9 +804,8 @@ async function sendMessage(){
   document.getElementById('sendBtn').disabled=false;
   input.focus();
 }
-
-function openSidebar(){ document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('show') }
-function closeSidebar(){ document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show') }
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('show')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show')}
 </script>
 </body>
 </html>
