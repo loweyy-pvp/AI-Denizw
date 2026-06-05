@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Denizw AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -51,12 +53,18 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .chats-list{flex:1;overflow-y:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:2px;}
 .chats-list::-webkit-scrollbar{width:3px}
 .chats-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-.chat-item{padding:9px 10px;border-radius:9px;cursor:pointer;transition:all 0.15s;font-size:0.83rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px;}
+.chat-item{padding:9px 10px;border-radius:9px;cursor:pointer;transition:all 0.15s;font-size:0.83rem;color:var(--muted);display:flex;align-items:center;gap:6px;position:relative;}
 .chat-item:hover{background:var(--s2);color:var(--text);}
 .chat-item.active{background:rgba(232,121,249,0.1);color:var(--c1);border:1px solid rgba(232,121,249,0.2);}
-.chat-item .del-btn{margin-left:auto;flex-shrink:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity 0.15s;}
-.chat-item:hover .del-btn{opacity:1;}
-.chat-item .del-btn:hover{color:var(--danger);}
+.chat-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chat-item-name-input{flex:1;background:var(--bg);border:1px solid var(--c1);border-radius:6px;padding:2px 6px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.83rem;outline:none;}
+.chat-actions{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity 0.15s;}
+.chat-item:hover .chat-actions{opacity:1;}
+.chat-item.active .chat-actions{opacity:1;}
+.ca-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.72rem;padding:2px 4px;border-radius:4px;transition:color 0.15s;}
+.ca-btn:hover{color:var(--text);}
+.ca-btn.del:hover{color:var(--danger);}
+
 .sidebar-bottom{padding:12px;border-top:1px solid var(--border);}
 .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--s2);}
 .user-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;}
@@ -94,24 +102,34 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .msg.user.is-admin .av{background:linear-gradient(135deg,var(--gold),#f97316);}
 .msg.ai .av{background:linear-gradient(135deg,#0e7490,var(--c2));border:1px solid rgba(56,189,248,0.3);}
 .msg.system-msg .av{background:linear-gradient(135deg,#1e293b,#334155);}
-.bbl{max-width:72%;padding:12px 16px;border-radius:16px;font-size:0.92rem;line-height:1.65;word-break:break-word;}
+.bbl{max-width:75%;padding:12px 16px;border-radius:16px;font-size:0.92rem;line-height:1.65;word-break:break-word;}
 .msg.user .bbl{background:linear-gradient(135deg,rgba(232,121,249,0.12),rgba(168,85,247,0.1));border:1px solid rgba(232,121,249,0.2);border-top-right-radius:4px;}
 .msg.user.is-admin .bbl{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(249,115,22,0.1));border:1px solid rgba(251,191,36,0.25);}
 .msg.ai .bbl{background:var(--s2);border:1px solid var(--border);border-top-left-radius:4px;}
 .bbl img{max-width:100%;max-height:260px;border-radius:10px;margin-bottom:6px;display:block;}
 
-/* admin panel bubble */
+/* CODE BLOCKS */
+.code-wrap{margin:8px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border2);}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#1a1a2e;border-bottom:1px solid var(--border2);}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--c2);}
+.code-btns{display:flex;gap:6px;}
+.code-btn{background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:4px;}
+.code-btn:hover{border-color:var(--c1);color:var(--c1);}
+.code-btn.copied{border-color:var(--c3);color:var(--c3);}
+.code-wrap pre{margin:0!important;border-radius:0!important;max-height:400px;overflow-y:auto;}
+.code-wrap pre code{font-family:'JetBrains Mono',monospace!important;font-size:0.82rem!important;}
+.code-wrap pre::-webkit-scrollbar{width:3px;height:3px}
+.code-wrap pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* inline code */
+.bbl code:not(pre code){background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--c2);}
+
+/* admin panel */
 .admin-panel{background:var(--s1);border:1px solid rgba(251,191,36,0.3);border-radius:14px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;max-width:90%;}
 .admin-panel .ap-title{color:var(--gold);font-weight:700;margin-bottom:10px;font-size:0.82rem;}
 .admin-panel table{width:100%;border-collapse:collapse;}
 .admin-panel th{color:var(--muted);font-size:0.7rem;text-align:left;padding:4px 8px;border-bottom:1px solid var(--border2);}
 .admin-panel td{padding:6px 8px;color:var(--text);border-bottom:1px solid var(--border);}
-.admin-panel td:first-child{color:var(--c2);}
-.admin-panel .chat-entry{padding:8px;border:1px solid var(--border2);border-radius:8px;margin-bottom:6px;}
-.admin-panel .chat-entry .ce-title{color:var(--c1);margin-bottom:6px;}
-.admin-panel .ce-msg{padding:3px 0;border-bottom:1px solid var(--border);font-size:0.72rem;}
-.admin-panel .ce-msg.u{color:var(--c2);}
-.admin-panel .ce-msg.a{color:var(--muted);}
 
 .typing-dots span{display:inline-block;width:5px;height:5px;background:var(--c2);border-radius:50%;margin:0 2px;animation:blink 1.2s infinite;}
 .typing-dots span:nth-child(2){animation-delay:0.2s}
@@ -122,7 +140,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #imgPreviewWrap{display:none;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:8px 12px;margin-bottom:8px;}
 #imgPreviewWrap img{height:50px;width:50px;object-fit:cover;border-radius:8px;}
 #imgPreviewWrap .img-name{font-size:0.78rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-#imgPreviewWrap .remove-img{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:6px;transition:color 0.15s;}
+#imgPreviewWrap .remove-img{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:6px;}
 #imgPreviewWrap .remove-img:hover{color:var(--danger);}
 .input-box{display:flex;gap:8px;align-items:flex-end;background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:10px 10px 10px 14px;transition:border-color 0.2s,box-shadow 0.2s;}
 .input-box:focus-within{border-color:var(--c1);box-shadow:0 0 0 3px rgba(232,121,249,0.08);}
@@ -144,6 +162,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   .sidebar.open{left:0;}
   .sidebar-overlay.show{display:block;}
   .mob-menu{display:block;}
+  .bbl{max-width:90%;}
 }
 </style>
 </head>
@@ -161,7 +180,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
       <button class="auth-tab" onclick="switchTab('signup')">Cont nou</button>
     </div>
     <div class="auth-fields">
-      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: regeledeniz" autocomplete="off"/></div>
+      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: loweyy" autocomplete="off"/></div>
       <div><label>PAROLĂ</label><input id="authPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuth()"/></div>
     </div>
     <div class="auth-err" id="authErr"></div>
@@ -198,19 +217,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
       <h2 id="chatTitle">Chat nou</h2>
       <div class="status-dot"><div class="dot"></div>online</div>
     </div>
-    <div id="chatbox">
-      <div class="empty" id="emptyState">
-        <div class="empty-icon">🤖</div>
-        <h2 id="emptyTitle">Bun venit la Denizw!</h2>
-        <p id="emptySubtitle">Întreabă-mă orice sau trimite o poză!</p>
-        <div class="suggestions">
-          <button class="sug-btn" onclick="suggest(this)">Ce poți face?</button>
-          <button class="sug-btn" onclick="suggest(this)">De ce Deniz e asa urat?</button>
-          <button class="sug-btn" onclick="suggest(this)">Scrie un cod simplu</button>
-          <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
-        </div>
-      </div>
-    </div>
+    <div id="chatbox"></div>
     <div class="input-wrap">
       <div id="imgPreviewWrap">
         <img id="imgPreviewThumb" src="" alt=""/>
@@ -223,7 +230,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
         <button id="sendBtn" onclick="sendMessage()">➤</button>
       </div>
       <input type="file" id="fileInput" accept="image/*" onchange="handleImageSelect(event)"/>
-      <div class="input-hint" id="inputHint">Enter = trimite &nbsp;·&nbsp; Shift+Enter = linie nouă &nbsp;·&nbsp; 🖼 = imagine</div>
+      <div class="input-hint" id="inputHint">Enter = trimite &nbsp;·&nbsp; Shift+Enter = linie nouă &nbsp;·&nbsp; dublu-click pe chat = redenumește</div>
     </div>
   </div>
 </div>
@@ -232,81 +239,65 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 // ═══════════════════════════════════════════
 //  ⚠️  PUNE API KEY-UL TĂU GROQ MAI JOS
 // ═══════════════════════════════════════════
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = "PUNE_KEY_UL_TAU_AICI";
 // ═══════════════════════════════════════════
 
-// ── ADMIN CONFIG ──
 const ADMIN_USER = "denizw";
-const ADMIN_PASS_HASH = hash("denizwtest"); // schimbă "denizwtest" cu parola ta reală
+const ADMIN_PASS_HASH = hash("denizwtest"); // schimbă parola aici
 
-let currentUser = null;
-let isAdmin = false;
-let currentChatId = null;
-let messages = [];
-let authMode = 'login';
-let pendingImage = null;
+let currentUser = null, isAdmin = false;
+let currentChatId = null, messages = [];
+let authMode = 'login', pendingImage = null;
 
 // ── storage ──
-function getUsers(){ try{ return JSON.parse(localStorage.getItem('dnz_users')||'{}'); }catch(e){return{};} }
-function saveUsers(u){ localStorage.setItem('dnz_users', JSON.stringify(u)); }
-function getChats(user){ try{ return JSON.parse(localStorage.getItem('dnz_chats_'+user)||'[]'); }catch(e){return[];} }
-function saveChats(user,c){ localStorage.setItem('dnz_chats_'+user, JSON.stringify(c)); }
-function hash(s){ let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(36); }
+function getUsers(){ try{return JSON.parse(localStorage.getItem('dnz_users')||'{}')}catch(e){return{}} }
+function saveUsers(u){ localStorage.setItem('dnz_users',JSON.stringify(u)) }
+function getChats(user){ try{return JSON.parse(localStorage.getItem('dnz_chats_'+user)||'[]')}catch(e){return[]} }
+function saveChats(user,c){ localStorage.setItem('dnz_chats_'+user,JSON.stringify(c)) }
+function hash(s){ let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(36) }
 
 // ── auth ──
 function switchTab(mode){
   authMode=mode;
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(mode==='login'?i===0:i===1)));
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',mode==='login'?i===0:i===1));
   document.getElementById('authBtn').textContent=mode==='login'?'Intră în cont':'Creează cont';
   document.getElementById('authErr').textContent='';
 }
-
 function doAuth(){
   const user=document.getElementById('authUser').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
   const err=document.getElementById('authErr');
-  if(!user||!pass){err.textContent='Completează toate câmpurile.';return;}
-  if(user.length<3){err.textContent='Numele trebuie să aibă minim 3 caractere.';return;}
-  if(pass.length<4){err.textContent='Parola trebuie să aibă minim 4 caractere.';return;}
-
-  // admin login special
+  if(!user||!pass){err.textContent='Completează toate câmpurile.';return}
+  if(user.length<3){err.textContent='Minim 3 caractere la nume.';return}
+  if(pass.length<4){err.textContent='Minim 4 caractere la parolă.';return}
   if(user===ADMIN_USER){
-    if(hash(pass)!==ADMIN_PASS_HASH){err.textContent='Parolă greșită.';return;}
-    startSession(user, true);
-    return;
+    if(hash(pass)!==ADMIN_PASS_HASH){err.textContent='Parolă greșită.';return}
+    startSession(user,true);return;
   }
-
   const users=getUsers();
   if(authMode==='signup'){
-    if(users[user]){err.textContent='Acest nume e deja folosit.';return;}
+    if(users[user]){err.textContent='Numele e deja folosit.';return}
     users[user]=hash(pass);saveUsers(users);
-    err.style.color='var(--c3)';err.textContent='Cont creat! Intri acum...';
-    setTimeout(()=>{err.style.color='';startSession(user,false);},800);
+    err.style.color='var(--c3)';err.textContent='Cont creat!';
+    setTimeout(()=>{err.style.color='';startSession(user,false)},800);
   } else {
-    if(!users[user]){err.textContent='Contul nu există.';return;}
-    if(users[user]!==hash(pass)){err.textContent='Parolă greșită.';return;}
+    if(!users[user]){err.textContent='Contul nu există.';return}
+    if(users[user]!==hash(pass)){err.textContent='Parolă greșită.';return}
     startSession(user,false);
   }
 }
-
-function startSession(user, admin){
-  currentUser=user; isAdmin=admin;
-  localStorage.setItem('dnz_session', JSON.stringify({user,admin}));
+function startSession(user,admin){
+  currentUser=user;isAdmin=admin;
+  localStorage.setItem('dnz_session',JSON.stringify({user,admin}));
   document.getElementById('authScreen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('userNameDisplay').textContent=user;
   const av=document.getElementById('userAv');
-  av.textContent=user[0].toUpperCase();
-  av.className='user-av '+(admin?'admin':'normal');
+  av.textContent=user[0].toUpperCase();av.className='user-av '+(admin?'admin':'normal');
   document.getElementById('adminBadge').style.display=admin?'block':'none';
-  if(admin){
-    document.getElementById('emptyTitle').textContent='Bun venit, lider! 👑';
-    document.getElementById('emptySubtitle').textContent='Scrie !help pentru comenzile de admin.';
-    document.getElementById('inputHint').innerHTML='Enter = trimite &nbsp;·&nbsp; !viewusers &nbsp;·&nbsp; !viewchat [user] &nbsp;·&nbsp; !deleteuser [user]';
-  }
-  renderChatsList(); newChat();
+  if(admin) document.getElementById('inputHint').innerHTML='Enter=trimite &nbsp;·&nbsp; !help pentru comenzi admin';
+  renderChatsList();newChat();
 }
-
 function logout(){
   currentUser=null;isAdmin=false;currentChatId=null;messages=[];pendingImage=null;
   localStorage.removeItem('dnz_session');
@@ -315,108 +306,211 @@ function logout(){
   document.getElementById('authUser').value='';
   document.getElementById('authPass').value='';
   document.getElementById('authErr').textContent='';
-  removeImage(); switchTab('login');
+  removeImage();switchTab('login');
 }
-
 window.addEventListener('load',()=>{
   try{
-    const saved=JSON.parse(localStorage.getItem('dnz_session'));
-    if(saved&&saved.user){
-      if(saved.admin&&saved.user===ADMIN_USER){ startSession(saved.user,true); return; }
-      const users=getUsers();
-      if(users[saved.user]) startSession(saved.user,false);
+    const s=JSON.parse(localStorage.getItem('dnz_session'));
+    if(s?.user){
+      if(s.admin&&s.user===ADMIN_USER){startSession(s.user,true);return}
+      if(getUsers()[s.user]) startSession(s.user,false);
     }
   }catch(e){}
 });
 
 // ── ADMIN COMMANDS ──
+const adminHelp = `
+<table>
+  <tr><th>Comandă</th><th>Descriere</th></tr>
+  <tr><td style="color:var(--c2)">!help</td><td>Această listă</td></tr>
+  <tr><td style="color:var(--c2)">!clear</td><td>Șterge toate chaturile tale</td></tr>
+  <tr><td style="color:var(--c2)">!stats</td><td>Statistici despre contul tău</td></tr>
+  <tr><td style="color:var(--c2)">!rename [text]</td><td>Redenumește chatul curent</td></tr>
+  <tr><td style="color:var(--c2)">!newchat</td><td>Deschide un chat nou</td></tr>
+  <tr><td style="color:var(--c2)">!export</td><td>Exportă conversația curentă ca .txt</td></tr>
+  <tr><td style="color:var(--c2)">!theme dark</td><td>Temă întunecată (default)</td></tr>
+  <tr><td style="color:var(--c2)">!theme purple</td><td>Temă violet</td></tr>
+  <tr><td style="color:var(--c2)">!theme cyan</td><td>Temă cyan</td></tr>
+  <tr><td style="color:var(--c2)">!model scout</td><td>Folosește llama-4-scout (vede poze)</td></tr>
+  <tr><td style="color:var(--c2)">!model fast</td><td>Folosește llama-3.3-70b (rapid)</td></tr>
+  <tr><td style="color:var(--c2)">!model big</td><td>Folosește llama-3.1-70b (puternic)</td></tr>
+  <tr><td style="color:var(--c2)">!sys [text]</td><td>Schimbă personalitatea AI-ului</td></tr>
+  <tr><td style="color:var(--c2)">!resetsys</td><td>Resetează personalitatea AI la default</td></tr>
+</table>`;
+
+let currentModel = 'meta-llama/llama-4-scout-17b-16e-instruct';
+let customSysPrompt = null;
+
 function handleAdminCommand(cmd){
-  const parts = cmd.trim().split(' ');
-  const command = parts[0].toLowerCase();
+  const parts=cmd.trim().split(' ');
+  const c=parts[0].toLowerCase();
 
-  if(command==='!help'){
-    showAdminPanel('📋 COMENZI ADMIN', `
+  if(c==='!help'){ showAdminPanel('📋 COMENZI ADMIN',adminHelp);return true; }
+
+  if(c==='!clear'){
+    saveChats(currentUser,[]);
+    newChat();
+    showAdminPanel('✅ GATA','<div style="color:var(--c3)">Toate conversațiile au fost șterse.</div>');
+    return true;
+  }
+
+  if(c==='!stats'){
+    const chats=getChats(currentUser);
+    const totalMsgs=chats.reduce((a,ch)=>(a+(ch.messages||[]).filter(m=>m.role!=='system').length),0);
+    showAdminPanel('📊 STATISTICI',`
       <table>
-        <tr><th>Comandă</th><th>Descriere</th></tr>
-        <tr><td>!viewusers</td><td>Vezi toate conturile</td></tr>
-        <tr><td>!viewchat [user]</td><td>Vezi conversațiile unui user</td></tr>
-        <tr><td>!deleteuser [user]</td><td>Șterge un cont</td></tr>
-        <tr><td>!help</td><td>Această listă</td></tr>
-      </table>
-    `);
+        <tr><th>Info</th><th>Valoare</th></tr>
+        <tr><td>Username</td><td style="color:var(--c2)">${esc(currentUser)} 👑</td></tr>
+        <tr><td>Conversații</td><td style="color:var(--c3)">${chats.length}</td></tr>
+        <tr><td>Mesaje totale</td><td style="color:var(--c3)">${totalMsgs}</td></tr>
+        <tr><td>Model activ</td><td style="color:var(--gold)">${currentModel.split('/').pop()}</td></tr>
+        <tr><td>Personalitate</td><td style="color:var(--muted)">${customSysPrompt?'Custom':'Default'}</td></tr>
+      </table>`);
     return true;
   }
 
-  if(command==='!viewusers'){
-    const users=getUsers();
-    const keys=Object.keys(users);
-    if(!keys.length){ showAdminPanel('👥 UTILIZATORI','<div style="color:var(--muted)">Niciun utilizator înregistrat.</div>'); return true; }
-    let rows='<table><tr><th>#</th><th>Username</th><th>Chaturi</th></tr>';
-    keys.forEach((u,i)=>{
-      const chats=getChats(u);
-      rows+=`<tr><td>${i+1}</td><td>${esc(u)}</td><td>${chats.length}</td></tr>`;
+  if(c==='!rename'){
+    const newName=parts.slice(1).join(' ').trim();
+    if(!newName){showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !rename [nume nou]</div>');return true;}
+    renameChatById(currentChatId,newName);
+    document.getElementById('chatTitle').textContent=newName;
+    showAdminPanel('✅ REDENUMIT',`<div style="color:var(--c3)">Chat redenumit în: <b>${esc(newName)}</b></div>`);
+    return true;
+  }
+
+  if(c==='!newchat'){ newChat();return true; }
+
+  if(c==='!export'){
+    const chats=getChats(currentUser);
+    const chat=chats.find(x=>x.id===currentChatId);
+    if(!chat||!messages.length){showAdminPanel('⚠️','<div style="color:var(--danger)">Niciun mesaj de exportat.</div>');return true;}
+    let txt=`Conversație: ${chat.title}\nData: ${new Date().toLocaleString('ro')}\n${'─'.repeat(50)}\n\n`;
+    messages.filter(m=>m.role!=='system').forEach(m=>{
+      const role=m.role==='user'?`[${currentUser.toUpperCase()}]`:'[DENIZW AI]';
+      const content=Array.isArray(m.content)?m.content.map(p=>p.type==='text'?p.text:'[imagine]').join(' '):m.content;
+      txt+=`${role}\n${content}\n\n`;
     });
-    rows+='</table>';
-    showAdminPanel(`👥 UTILIZATORI (${keys.length})`, rows);
+    downloadFile(chat.title.replace(/[^a-z0-9]/gi,'_')+'.txt', txt, 'text/plain');
+    showAdminPanel('✅ EXPORTAT',`<div style="color:var(--c3)">Conversația a fost descărcată ca fișier .txt</div>`);
     return true;
   }
 
-  if(command==='!viewchat'){
-    const target=parts[1]?.toLowerCase();
-    if(!target){ showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !viewchat [username]</div>'); return true; }
-    const chats=getChats(target);
-    if(!chats.length){ showAdminPanel('💬 CHATURI','<div style="color:var(--muted)">Niciun chat găsit pentru "'+esc(target)+'".</div>'); return true; }
-    let html=`<div style="color:var(--c2);margin-bottom:10px">Conversațiile lui <b>${esc(target)}</b>:</div>`;
-    chats.forEach(c=>{
-      html+=`<div class="chat-entry"><div class="ce-title">💬 ${esc(c.title)}</div>`;
-      const msgs=(c.messages||[]).filter(m=>m.role!=='system');
-      msgs.slice(0,20).forEach(m=>{
-        const content=Array.isArray(m.content)?'[imagine + text]':(m.content||'').slice(0,120);
-        html+=`<div class="ce-msg ${m.role==='user'?'u':'a'}">${m.role==='user'?'👤':'🤖'} ${esc(content)}${(m.content||'').length>120?'…':''}</div>`;
-      });
-      if(msgs.length>20) html+=`<div style="color:var(--muted);font-size:0.7rem;margin-top:4px">... și ${msgs.length-20} mesaje în plus</div>`;
-      html+='</div>';
-    });
-    showAdminPanel(`💬 CHATURI — ${esc(target)}`, html);
+  if(c==='!theme'){
+    const t=parts[1]?.toLowerCase();
+    const themes={
+      dark:{c1:'#e879f9',c2:'#38bdf8'},
+      purple:{c1:'#a78bfa',c2:'#c084fc'},
+      cyan:{c1:'#22d3ee',c2:'#67e8f9'},
+    };
+    if(!themes[t]){showAdminPanel('⚠️ EROARE',`<div style="color:var(--danger)">Teme disponibile: dark, purple, cyan</div>`);return true;}
+    document.documentElement.style.setProperty('--c1',themes[t].c1);
+    document.documentElement.style.setProperty('--c2',themes[t].c2);
+    showAdminPanel('🎨 TEMĂ',`<div style="color:var(--c3)">Temă schimbată în: <b>${t}</b></div>`);
     return true;
   }
 
-  if(command==='!deleteuser'){
-    const target=parts[1]?.toLowerCase();
-    if(!target){ showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !deleteuser [username]</div>'); return true; }
-    if(target===ADMIN_USER){ showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Nu poți șterge contul admin.</div>'); return true; }
-    const users=getUsers();
-    if(!users[target]){ showAdminPanel('⚠️ EROARE',`<div style="color:var(--danger)">Userul "${esc(target)}" nu există.</div>`); return true; }
-    delete users[target];
-    saveUsers(users);
-    localStorage.removeItem('dnz_chats_'+target);
-    showAdminPanel('✅ SUCCES',`<div style="color:var(--c3)">Contul "${esc(target)}" a fost șters cu succes.</div>`);
+  if(c==='!model'){
+    const m=parts[1]?.toLowerCase();
+    const models={
+      scout:'meta-llama/llama-4-scout-17b-16e-instruct',
+      fast:'llama-3.3-70b-versatile',
+      big:'llama-3.1-70b-versatile',
+    };
+    if(!models[m]){showAdminPanel('⚠️ EROARE',`<div style="color:var(--danger)">Modele: scout, fast, big</div>`);return true;}
+    currentModel=models[m];
+    showAdminPanel('🤖 MODEL',`<div style="color:var(--c3)">Model schimbat în: <b>${models[m].split('/').pop()}</b></div>`);
     return true;
   }
 
-  return false; // not a command
+  if(c==='!sys'){
+    const prompt=parts.slice(1).join(' ').trim();
+    if(!prompt){showAdminPanel('⚠️ EROARE','<div style="color:var(--danger)">Folosire: !sys [descriere personalitate]</div>');return true;}
+    customSysPrompt=prompt;
+    showAdminPanel('🧠 PERSONALITATE',`<div style="color:var(--c3)">AI-ul va fi acum: <b>${esc(prompt)}</b></div>`);
+    return true;
+  }
+
+  if(c==='!resetsys'){
+    customSysPrompt=null;
+    showAdminPanel('🧠 RESETAT','<div style="color:var(--c3)">Personalitatea AI a fost resetată la default.</div>');
+    return true;
+  }
+
+  // unknown command
+  showAdminPanel('❓ COMANDĂ NECUNOSCUTĂ',`<div style="color:var(--danger)">Comandă necunoscută: <b>${esc(cmd)}</b><br><br>Scrie <b>!help</b> pentru lista completă.</div>`);
+  return true;
 }
 
-function showAdminPanel(title, content){
+function showAdminPanel(title,content){
   clearEmpty();
   const box=document.getElementById('chatbox');
   const div=document.createElement('div');
   div.className='msg system-msg';
-  div.style.animation='fadeIn 0.25s ease';
-  div.innerHTML=`
-    <div class="av">👑</div>
-    <div class="admin-panel">
-      <div class="ap-title">${title}</div>
-      ${content}
+  div.innerHTML=`<div class="av">👑</div><div class="admin-panel"><div class="ap-title">${title}</div>${content}</div>`;
+  box.appendChild(div);box.scrollTop=box.scrollHeight;
+}
+
+// ── markdown/code renderer ──
+function renderMarkdown(text){
+  // code blocks ```lang\ncode```
+  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const cleanLang = lang.trim() || 'text';
+    const id = 'cb_' + Math.random().toString(36).slice(2,8);
+    // guess filename extension
+    const extMap = {javascript:'js',typescript:'ts',python:'py',lua:'lua',html:'html',css:'css',bash:'sh',shell:'sh',java:'java',cpp:'cpp',c:'c',rust:'rs',go:'go',json:'json',xml:'xml',yaml:'yml',sql:'sql',php:'php',ruby:'rb',swift:'swift',kotlin:'kt'};
+    const ext = extMap[cleanLang.toLowerCase()] || cleanLang.toLowerCase() || 'txt';
+    const filename = `script.${ext}`;
+    return `<div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">${cleanLang}</span>
+        <div class="code-btns">
+          <button class="code-btn" onclick="copyCode('${id}',this)">📋 Copy</button>
+          <button class="code-btn" onclick="downloadCode('${id}','${filename}')">⬇ ${filename}</button>
+        </div>
+      </div>
+      <pre><code id="${id}" class="language-${cleanLang}">${escHtml(code.trim())}</code></pre>
     </div>`;
-  box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
+  });
+  // inline code `code`
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // bold **text**
+  text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  // italic *text*
+  text = text.replace(/\*(.*?)\*/g, '<i>$1</i>');
+  // newlines
+  text = text.replace(/\n/g, '<br>');
+  return text;
+}
+
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') }
+
+function copyCode(id, btn){
+  const code = document.getElementById(id)?.innerText || '';
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='✓ Copiat!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('copied')},2000);
+  });
+}
+
+function downloadCode(id, filename){
+  const code = document.getElementById(id)?.innerText || '';
+  downloadFile(filename, code, 'text/plain');
+}
+
+function downloadFile(filename, content, type){
+  const blob = new Blob([content], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 // ── image ──
 function handleImageSelect(e){
-  const file=e.target.files[0]; if(!file) return;
-  if(file.size>5*1024*1024){alert('Poza e prea mare (max 5MB).');return;}
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>5*1024*1024){alert('Poza e prea mare (max 5MB).');return}
   const reader=new FileReader();
   reader.onload=ev=>{
     const dataUrl=ev.target.result;
@@ -426,7 +520,7 @@ function handleImageSelect(e){
     document.getElementById('imgPreviewWrap').style.display='flex';
     document.getElementById('imgBtn').classList.add('has-img');
   };
-  reader.readAsDataURL(file); e.target.value='';
+  reader.readAsDataURL(file);e.target.value='';
 }
 function removeImage(){
   pendingImage=null;
@@ -437,7 +531,7 @@ function removeImage(){
 }
 
 // ── chats ──
-function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6) }
 
 function newChat(){
   currentChatId=genId();messages=[];
@@ -447,18 +541,53 @@ function newChat(){
   document.getElementById('userInput').focus();
 }
 
+function renameChatById(id, name){
+  const chats=getChats(currentUser);
+  const idx=chats.findIndex(c=>c.id===id);
+  if(idx>=0){chats[idx].title=name;saveChats(currentUser,chats);}
+  renderChatsList();
+}
+
 function renderChatsList(){
   const list=document.getElementById('chatsList');
   const chats=getChats(currentUser);
   list.innerHTML='';
-  if(!chats.length){list.innerHTML='<div style="padding:12px;font-size:0.78rem;color:var(--muted);text-align:center;">Nicio conversație încă</div>';return;}
+  if(!chats.length){list.innerHTML='<div style="padding:12px;font-size:0.78rem;color:var(--muted);text-align:center;">Nicio conversație încă</div>';return}
   [...chats].reverse().forEach(c=>{
     const div=document.createElement('div');
     div.className='chat-item'+(c.id===currentChatId?' active':'');
-    div.innerHTML=`<span style="flex:1;overflow:hidden;text-overflow:ellipsis">💬 ${esc(c.title)}</span><button class="del-btn" onclick="deleteChat(event,'${c.id}')">✕</button>`;
-    div.onclick=()=>loadChat(c.id);
+    div.dataset.id=c.id;
+    div.innerHTML=`
+      <span class="chat-item-name">💬 ${esc(c.title)}</span>
+      <div class="chat-actions">
+        <button class="ca-btn" title="Redenumește" onclick="startRename(event,'${c.id}')">✏️</button>
+        <button class="ca-btn del" title="Șterge" onclick="deleteChat(event,'${c.id}')">✕</button>
+      </div>`;
+    div.onclick=(e)=>{ if(e.target.classList.contains('ca-btn')||e.target.classList.contains('chat-item-name-input')) return; loadChat(c.id); };
+    // double click to rename
+    div.ondblclick=(e)=>{ if(e.target.tagName==='BUTTON') return; startRename(e,c.id); };
     list.appendChild(div);
   });
+}
+
+function startRename(e, id){
+  e.stopPropagation();
+  const item=document.querySelector(`.chat-item[data-id="${id}"]`);
+  if(!item) return;
+  const nameEl=item.querySelector('.chat-item-name');
+  const currentName=nameEl.textContent.replace('💬 ','').trim();
+  const input=document.createElement('input');
+  input.className='chat-item-name-input';
+  input.value=currentName;
+  nameEl.replaceWith(input);
+  input.focus();input.select();
+  const finish=()=>{
+    const newName=input.value.trim()||currentName;
+    renameChatById(id,newName);
+    if(id===currentChatId) document.getElementById('chatTitle').textContent=newName;
+  };
+  input.onblur=finish;
+  input.onkeydown=(e)=>{ if(e.key==='Enter'){e.preventDefault();input.blur();} if(e.key==='Escape'){input.value=currentName;input.blur();} };
 }
 
 function saveCurrentChat(title){
@@ -470,8 +599,7 @@ function saveCurrentChat(title){
   });
   const obj={id:currentChatId,title:title||'Chat nou',messages:lightMsgs,ts:Date.now()};
   if(idx>=0) chats[idx]=obj; else chats.push(obj);
-  saveChats(currentUser,chats);
-  renderChatsList();
+  saveChats(currentUser,chats);renderChatsList();
 }
 
 function loadChat(id){
@@ -494,7 +622,16 @@ function renderChatbox(){
   const box=document.getElementById('chatbox');
   box.innerHTML='';
   if(!messages.length){
-    box.innerHTML=`<div class="empty" id="emptyState"><div class="empty-icon">${isAdmin?'👑':'🤖'}</div><h2>${isAdmin?'Bun venit, lider! 👑':'Bun venit la Denizw!'}</h2><p>${isAdmin?'Scrie !help pentru comenzile de admin.':'Întreabă-mă orice sau trimite o poză!'}</p><div class="suggestions"><button class="sug-btn" onclick="suggest(this)">${isAdmin?'!viewusers':'Ce poți face?'}</button><button class="sug-btn" onclick="suggest(this)">${isAdmin?'!viewchat ':'Explică-mi Minecraft'}</button><button class="sug-btn" onclick="suggest(this)">Scrie un cod simplu</button><button class="sug-btn" onclick="suggest(this)">Spune o glumă</button></div></div>`;
+    box.innerHTML=`<div class="empty" id="emptyState">
+      <div class="empty-icon">${isAdmin?'👑':'🤖'}</div>
+      <h2>${isAdmin?'Bun venit, lider! 👑':'Bun venit la Denizw!'}</h2>
+      <p>${isAdmin?'Scrie !help pentru comenzile de admin.':'Întreabă-mă orice sau trimite o poză!'}</p>
+      <div class="suggestions">
+        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!help':'Ce poți face?'}</button>
+        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!stats':'Explică-mi Minecraft'}</button>
+        <button class="sug-btn" onclick="suggest(this)">Scrie un script Lua Roblox</button>
+        <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
+      </div></div>`;
     return;
   }
   messages.forEach(m=>{
@@ -502,19 +639,22 @@ function renderChatbox(){
     if(Array.isArray(m.content)){
       let imgHtml='',textHtml='';
       m.content.forEach(p=>{
-        if(p.type==='image_url'){const src=p.image_url.url==='[image]'?'':p.image_url.url;imgHtml=src?`<img src="${src}" alt="imagine"/>`:`<div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">🖼 [imagine]</div>`;}
+        if(p.type==='image_url'){const src=p.image_url.url==='[image]'?'':p.image_url.url;imgHtml=src?`<img src="${src}" alt="imagine"/>`:`<div style="font-size:0.78rem;color:var(--muted)">🖼 [imagine]</div>`;}
         if(p.type==='text') textHtml=esc(p.text);
       });
       addMsgEl('user',imgHtml+(textHtml?`<div style="margin-top:${imgHtml?'6px':'0'}">${textHtml}</div>`:''),false);
     } else {
-      addMsgEl(m.role==='user'?'user':'ai',esc(m.content),false);
+      const role=m.role==='user'?'user':'ai';
+      const html=role==='ai'?renderMarkdown(m.content):esc(m.content);
+      addMsgEl(role,html,false);
     }
   });
+  // highlight all code blocks
+  box.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
   box.scrollTop=box.scrollHeight;
 }
 
-function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-function clearEmpty(){ const e=document.getElementById('emptyState'); if(e)e.remove(); }
+function clearEmpty(){ const e=document.getElementById('emptyState');if(e)e.remove() }
 
 function addMsgEl(role,html,animate=true){
   clearEmpty();
@@ -523,7 +663,10 @@ function addMsgEl(role,html,animate=true){
   div.className='msg '+role+(isAdmin&&role==='user'?' is-admin':'');
   if(!animate) div.style.animation='none';
   div.innerHTML=`<div class="av">${role==='user'?(isAdmin?'👑':'👤'):'✦'}</div><div class="bbl">${html}</div>`;
-  box.appendChild(div);box.scrollTop=box.scrollHeight;
+  box.appendChild(div);
+  // highlight code in new message
+  div.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
+  box.scrollTop=box.scrollHeight;
   return div;
 }
 
@@ -536,32 +679,31 @@ function addTyping(){
   box.appendChild(div);box.scrollTop=box.scrollHeight;
 }
 
-function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
-function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
-function suggest(btn){ document.getElementById('userInput').value=btn.textContent; sendMessage(); }
+function autoResize(el){ el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px' }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()} }
+function suggest(btn){ document.getElementById('userInput').value=btn.textContent;sendMessage() }
 
 async function sendMessage(){
   const input=document.getElementById('userInput');
   const text=input.value.trim();
   if(!text&&!pendingImage) return;
 
-  // check admin commands
-  if(isAdmin && text.startsWith('!')){
+  if(isAdmin&&text.startsWith('!')){
     const handled=handleAdminCommand(text);
-    if(handled){ input.value=''; input.style.height='auto'; return; }
+    if(handled){input.value='';input.style.height='auto';return}
   }
 
-  input.value=''; input.style.height='auto';
+  input.value='';input.style.height='auto';
   document.getElementById('sendBtn').disabled=true;
 
-  let userContent, displayHtml='';
+  let userContent,displayHtml='';
   if(pendingImage){
     userContent=[{type:'image_url',image_url:{url:`data:${pendingImage.mimeType};base64,${pendingImage.base64}`}}];
     displayHtml=`<img src="${pendingImage.dataUrl}" alt="imagine"/>`;
     if(text){userContent.push({type:'text',text});displayHtml+=`<div style="margin-top:6px">${esc(text)}</div>`;}
     removeImage();
   } else {
-    userContent=text; displayHtml=esc(text);
+    userContent=text;displayHtml=esc(text);
   }
 
   addMsgEl('user',displayHtml);
@@ -574,41 +716,40 @@ async function sendMessage(){
 
   addTyping();
 
-  // system prompt — AI knows who is admin
-  const systemPrompt = isAdmin
-    ? `Ești Denizw, un asistent AI. Utilizatorul cu care vorbești se numește "${currentUser}" și este LIDERUL și administratorul acestui site. Tratează-l cu respect deosebit, numește-l "lider" sau pe nume când e natural. Răspunde în română dacă ți se vorbește în română. Fii util și concis.`
-    : `Ești Denizw, un asistent AI prietenos și deștept. Utilizatorul se numește "${currentUser}". Răspunde în română dacă ți se vorbește în română. Fii concis, clar și util.`;
+  const sysPrompt = customSysPrompt ||
+    (isAdmin
+      ? `Ești Denizw, un asistent AI. Utilizatorul "${currentUser}" este LIDERUL și administratorul acestui site. Tratează-l cu respect, numește-l "lider" când e natural. Când dai cod, folosește întotdeauna blocuri de cod cu limbajul specificat (\`\`\`lua, \`\`\`javascript etc). Răspunde în română dacă ți se vorbește în română.`
+      : `Ești Denizw, un asistent AI prietenos. Utilizatorul se numește "${currentUser}". Când dai cod, folosește întotdeauna blocuri de cod cu limbajul specificat (\`\`\`lua, \`\`\`javascript etc). Răspunde în română dacă ți se vorbește în română. Fii concis și util.`);
 
   try{
     const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_API_KEY},
       body:JSON.stringify({
-        model:'meta-llama/llama-4-scout-17b-16e-instruct',
-        messages:[{role:'system',content:systemPrompt},...messages],
-        max_tokens:1024
+        model:currentModel,
+        messages:[{role:'system',content:sysPrompt},...messages],
+        max_tokens:2048
       })
     });
     const data=await res.json();
     document.getElementById('typing-ind')?.remove();
-    if(data.error){ addMsgEl('ai','❌ Eroare: '+esc(data.error.message)); }
-    else {
+    if(data.error){addMsgEl('ai','❌ Eroare: '+esc(data.error.message));}
+    else{
       const reply=data.choices[0].message.content;
       messages.push({role:'assistant',content:reply});
-      addMsgEl('ai',esc(reply));
+      addMsgEl('ai',renderMarkdown(reply));
       saveCurrentChat(document.getElementById('chatTitle').textContent);
     }
   }catch(err){
     document.getElementById('typing-ind')?.remove();
     addMsgEl('ai','❌ Eroare de conexiune.');
   }
-
   document.getElementById('sendBtn').disabled=false;
   input.focus();
 }
 
-function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
-function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+function openSidebar(){ document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('show') }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show') }
 </script>
 </body>
 </html>
