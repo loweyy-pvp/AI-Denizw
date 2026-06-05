@@ -230,7 +230,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
       <button class="auth-tab" onclick="switchTab('signup')">Cont nou</button>
     </div>
     <div class="auth-fields">
-      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: loweyy" autocomplete="off"/></div>
+      <div><label>NUME DE UTILIZATOR</label><input id="authUser" type="text" placeholder="ex: regeledeniz" autocomplete="off"/></div>
       <div><label>PAROLĂ</label><input id="authPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuth()"/></div>
     </div>
     <div class="auth-err" id="authErr"></div>
@@ -305,7 +305,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 // ═══════════════════════════════════════════
 //  ⚠️  PUNE API KEY-UL TĂU GROQ MAI JOS
 // ═══════════════════════════════════════════
-const GROQ_API_KEY = "PUNE_KEY_UL_TAU_AICI";
+const GROQ_API_KEY = "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";
 // ═══════════════════════════════════════════
 
 const ADMIN_USER = "denizw";
@@ -711,8 +711,8 @@ function renderChatbox(){
       <p>${isAdmin?'Scrie !help pentru comenzi. Folosești: '+currentModel.name:'Folosești: '+currentModel.name+' · Schimbă modelul din sidebar'}</p>
       <div class="suggestions">
         <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!help':'Ce poți face?'}</button>
-        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!stats':'Explică-mi Minecraft'}</button>
-        <button class="sug-btn" onclick="suggest(this)">Scrie un script Lua Roblox</button>
+        <button class="sug-btn" onclick="suggest(this)">${isAdmin?'!stats':'De ce deniz e asa de urat?'}</button>
+        <button class="sug-btn" onclick="suggest(this)">Fami temele</button>
         <button class="sug-btn" onclick="suggest(this)">Spune o glumă</button>
       </div></div>`;
     return;
